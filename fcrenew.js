@@ -43,6 +43,18 @@ _0xk1l2.forEach((_0xo5p6, _0xq7r8) => {
 });
 
 /**
+ * 随机打乱数组顺序
+ */
+function _0xr1s2(_0xt3u4) {
+  const _0xv5w6 = [..._0xt3u4];
+  for (let _0xx7y8 = _0xv5w6.length - 1; _0xx7y8 > 0; _0xx7y8--) {
+    const _0xz9a0 = Math.floor(Math.random() * (_0xx7y8 + 1));
+    [_0xv5w6[_0xx7y8], _0xv5w6[_0xz9a0]] = [_0xv5w6[_0xz9a0], _0xv5w6[_0xx7y8]];
+  }
+  return _0xv5w6;
+}
+
+/**
  * Telegram 消息推送
  */
 async function _0xs9t0(_0xu1v2) {
@@ -84,9 +96,13 @@ async function _0xs9t0(_0xu1v2) {
  * Worker 调用处理
  */
 async function _0xg3h4(_0xi5j6, _0xk7l8) {
-  for (let _0xm9n0 = 0; _0xm9n0 < _0x9i0j.length; _0xm9n0++) {
-    const _0xo1p2 = _0x9i0j[_0xm9n0];
-    console.log(`🔗 尝试调用 Worker: ${_0xo1p2}`);
+  // 随机打乱 URL 顺序
+  const _0xb1c2 = _0xr1s2(_0x9i0j);
+  console.log(`🎲 随机选择 URL 顺序: ${_0xb1c2.map((_0xd3e4, _0xf5g6) => `${_0xf5g6 + 1}. ${_0xd3e4.split('//')[1].split('.')[0]}`).join(', ')}`);
+
+  for (let _0xm9n0 = 0; _0xm9n0 < _0xb1c2.length; _0xm9n0++) {
+    const _0xo1p2 = _0xb1c2[_0xm9n0];
+    console.log(`🔗 尝试调用 Worker (${_0xm9n0 + 1}/${_0xb1c2.length}): ${_0xo1p2}`);
 
     try {
       const _0xq3r4 = await fetch(_0xo1p2, {
@@ -107,7 +123,7 @@ async function _0xg3h4(_0xi5j6, _0xk7l8) {
         throw new Error(`API Key 认证失败: ${_0xu7v8.error}`);
       } else {
         console.warn(`⚠️ Worker 响应错误 (${_0xq3r4.status}): ${_0xo1p2}`);
-        if (_0xm9n0 === _0x9i0j.length - 1) {
+        if (_0xm9n0 === _0xb1c2.length - 1) {
           const _0xw9x0 = await _0xq3r4.json().catch(() => ({ error: '未知错误' }));
           throw new Error(`所有 Worker URL 都不可用，最后错误: ${_0xw9x0.error}`);
         }
@@ -117,7 +133,7 @@ async function _0xg3h4(_0xi5j6, _0xk7l8) {
       if (_0xy1z2.message.includes('API Key 认证失败')) {
         throw _0xy1z2;
       }
-      if (_0xm9n0 === _0x9i0j.length - 1) {
+      if (_0xm9n0 === _0xb1c2.length - 1) {
         throw new Error(`所有 Worker URL 都不可用: ${_0xy1z2.message}`);
       }
     }
