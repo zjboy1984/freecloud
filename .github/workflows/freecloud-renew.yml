@@ -6,7 +6,7 @@ on:
       force_run:
         description: '强制执行续期'
         required: false
-        default: 'false'
+        default: false
         type: boolean
   schedule:
     - cron: "0 0 */2 * *"  # 每2天执行一次
@@ -37,12 +37,3 @@ jobs:
           # FreeCloud 配置 (必需)
           FREECLOUD_ACCOUNTS: ${{ secrets.FREECLOUD_ACCOUNTS || vars.FREECLOUD_ACCOUNTS }}
           FREECLOUD_API_KEY: ${{ secrets.FREECLOUD_API_KEY || vars.FREECLOUD_API_KEY }}
-
-      - name: 上传执行日志
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: freecloud-renew-logs-${{ github.run_number }}
-          path: |
-            ${{ github.workspace }}/*.log
-          retention-days: 7

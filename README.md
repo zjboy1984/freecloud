@@ -56,6 +56,12 @@
 ]
 ```
 
+#### 如何获取 port 值：
+
+1. 登录 [https://freecloud.ltd/server/lxc](https://freecloud.ltd/server/lxc)
+2. 查看服务器地区前面显示的编号，格式为 `#1234`
+3. 其中 `1234` 即为该账号的 port 值
+
 ### 4. 启用 GitHub Actions
 
 1. 进入仓库的 **Actions** 标签页
@@ -131,7 +137,6 @@
 1. 进入 **Actions** 标签页
 2. 选择对应的执行记录
 3. 点击 **"renew"** 查看详细日志
-4. 下载 **"freecloud-renew-logs"** 获取完整日志
 
 ## 🔒 安全说明
 
