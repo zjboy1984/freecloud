@@ -1,0 +1,48 @@
+name: FreeCloud 自动续期
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: '强制执行续期'
+        required: false
+        default: 'false'
+        type: boolean
+  schedule:
+    - cron: "0 0 */2 * *"  # 每2天执行一次
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: npm install node-fetch@2
+
+      - name: 执行 FreeCloud 续期
+        run: node fcrenew.js
+        env:
+          # Telegram 通知配置 (可选)
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || vars.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || vars.TELEGRAM_CHAT_ID }}
+
+          # FreeCloud 配置 (必需)
+          FREECLOUD_ACCOUNTS: ${{ secrets.FREECLOUD_ACCOUNTS || vars.FREECLOUD_ACCOUNTS }}
+          FREECLOUD_API_KEY: ${{ secrets.FREECLOUD_API_KEY || vars.FREECLOUD_API_KEY }}
+
+      - name: 上传执行日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freecloud-renew-logs-${{ github.run_number }}
+          path: |
+            ${{ github.workspace }}/*.log
+          retention-days: 7
