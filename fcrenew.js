@@ -39,7 +39,8 @@ try {
 
 console.log(`📋 读取到 ${_0xk1l2.length} 个账号`);
 _0xk1l2.forEach((_0xo5p6, _0xq7r8) => {
-  console.log(`账号 ${_0xq7r8 + 1}: ${_0xo5p6.username} (端口: ${_0xo5p6.port})`);
+  const _0xs9t0 = _0xo5p6.type === 'nat.freecloud' ? 'UID' : '端口';
+  console.log(`账号 ${_0xq7r8 + 1}: ${_0xo5p6.username} (${_0xs9t0}: ${_0xo5p6.port}) [${_0xo5p6.type || 'freecloud'}]`);
 });
 
 /**
@@ -146,7 +147,7 @@ async function _0xg3h4(_0xi5j6, _0xk7l8) {
 function _0xa3b4(_0xc5d6) {
   const { processed: _0xe7f8, summary: _0xg9h0, results: _0xi1j2 } = _0xc5d6;
 
-  let _0xk3l4 = `🌤 *FreeCloud 续期状态报告*\n\n`;
+  let _0xk3l4 = `🌤 *多站点续期状态报告*\n\n`;
   _0xk3l4 += `📊 本次处理: ${_0xe7f8}个账号\n`;
   _0xk3l4 += `✅ 登录成功: ${_0xg9h0.loginSuccess}个  `;
   _0xk3l4 += `💰 续期成功: ${_0xg9h0.renewSuccess}个  `;
@@ -157,20 +158,21 @@ function _0xa3b4(_0xc5d6) {
   _0xi1j2.forEach((_0xm5n6, _0xo7p8) => {
     const _0xq9r0 = _0xo7p8 + 1;
     const _0xs1t2 = _0xm5n6.username;
+    const _0xu3v4 = _0xm5n6.type || 'freecloud';
 
     if (_0xm5n6.error) {
-      _0xk3l4 += `❌ 账号${_0xq9r0} \`${_0xs1t2}\` 处理失败: ${_0xm5n6.error}\n`;
+      _0xk3l4 += `❌ 账号${_0xq9r0} \`${_0xs1t2}\` (${_0xu3v4}) 处理失败: ${_0xm5n6.error}\n`;
     } else {
       if (_0xm5n6.loginSuccess) {
-        _0xk3l4 += `✅ 账号${_0xq9r0} \`${_0xs1t2}\` 登录成功\n`;
+        _0xk3l4 += `✅ 账号${_0xq9r0} \`${_0xs1t2}\` (${_0xu3v4}) 登录成功\n`;
       } else {
-        _0xk3l4 += `❌ 账号${_0xq9r0} \`${_0xs1t2}\` 登录失败\n`;
+        _0xk3l4 += `❌ 账号${_0xq9r0} \`${_0xs1t2}\` (${_0xu3v4}) 登录失败\n`;
       }
 
       if (_0xm5n6.renewSuccess) {
-        _0xk3l4 += `💰 账号${_0xq9r0} \`${_0xs1t2}\` 续期成功: ${_0xm5n6.message}\n`;
+        _0xk3l4 += `💰 账号${_0xq9r0} \`${_0xs1t2}\` (${_0xu3v4}) 续期成功: ${_0xm5n6.message}\n`;
       } else if (_0xm5n6.message) {
-        _0xk3l4 += `⚠️ 账号${_0xq9r0} \`${_0xs1t2}\` 续期结果: ${_0xm5n6.message}\n`;
+        _0xk3l4 += `⚠️ 账号${_0xq9r0} \`${_0xs1t2}\` (${_0xu3v4}) 续期结果: ${_0xm5n6.message}\n`;
       }
     }
 
@@ -215,7 +217,7 @@ async function _0xu3v4() {
   } catch (_0xe3f4) {
     console.error("❌ 执行失败:", _0xe3f4.message);
 
-    const _0xg5h6 = `❌ *FreeCloud 续期失败*\n\n错误信息: ${_0xe3f4.message}\n\n⏰ 时间: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
+    const _0xg5h6 = `❌ *多站点续期失败*\n\n错误信息: ${_0xe3f4.message}\n\n⏰ 时间: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
     await _0xs9t0(_0xg5h6);
 
     process.exit(1);
