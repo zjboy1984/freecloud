@@ -109,7 +109,7 @@
   {
     "type": "nat.freecloud",
     "username": "myemail@gmail.com",
-    "password": "TKMMLa1zX62XKg9bkWU0vw%3D%3D",
+    "password": "ABDFSW21FA33vsq==",
     "port": "131"
   },
   {
