@@ -145,10 +145,10 @@ async function _0xg3h4(_0xi5j6, _0xk7l8) {
  * 生成通知消息
  */
 function _0xa3b4(_0xc5d6) {
-  const { processed: _0xe7f8, summary: _0xg9h0, results: _0xi1j2 } = _0xc5d6;
+  const { processed: _0xe7f8, summary: _0xg9h0, results: _0xi1j2, key_usage: _0xk2l3 } = _0xc5d6;
 
-  let _0xk3l4 = `🌤 *多站点续期状态报告*\n\n`;
-  _0xk3l4 += `📊 本次处理: ${_0xe7f8}个账号\n`;
+  let _0xk3l4 = `🌤 *freecloud 多站点续期状态报告*\n\n`;
+  _0xk3l4 += `📊 本次处理: ${_0xe7f8}个账号，本执行续期，Key使用${_0xk2l3.this_operation}次，总计使用${_0xk2l3.total_used}次\n`;
   _0xk3l4 += `✅ 登录成功: ${_0xg9h0.loginSuccess}个  `;
   _0xk3l4 += `💰 续期成功: ${_0xg9h0.renewSuccess}个  `;
   _0xk3l4 += `❌ 失败: ${_0xg9h0.failed}个\n\n`;
@@ -192,7 +192,7 @@ async function _0xu3v4() {
     const _0xw5x6 = await _0xg3h4(_0xk1l2, _0x7g8h);
 
     console.log("✅ Worker 处理完成");
-    console.log(`📊 处理结果: 总计${_0xw5x6.processed}个账号, 登录成功${_0xw5x6.summary.loginSuccess}个, 续期成功${_0xw5x6.summary.renewSuccess}个, 失败${_0xw5x6.summary.failed}个`);
+    console.log(`📊 处理结果: 总计${_0xw5x6.processed}个账号, 登录成功${_0xw5x6.summary.loginSuccess}个, 续期成功${_0xw5x6.summary.renewSuccess}个, 失败${_0xw5x6.summary.failed}个，本次Key使用${_0xw5x6.key_usage.this_operation}次，总计使用${_0xw5x6.key_usage.total_used}次`);
 
     const _0xy7z8 = _0xa3b4(_0xw5x6);
     await _0xs9t0(_0xy7z8);
