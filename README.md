@@ -29,8 +29,8 @@
 
 | 变量名 | 类型 | 说明 | 示例 |
 |--------|------|------|------|
-| `FREECLOUD_ACCOUNTS` | Secret | 多站点账号列表 (JSON格式) | 见下方示例 |
-| `FREECLOUD_API_KEY` | Secret | API 访问密钥 | `TEST123456789ABC` |
+| `FREECLOUD_ACCOUNTS` | Secret | FreeCloud 账号列表 (JSON格式) | 见下方示例 |
+| `FREECLOUD_API_KEY` | Secret | 访问密钥使用`TEST123456789ABC` | `TEST123456789ABC` |
 
 #### 可选配置 (Telegram 通知)
 
