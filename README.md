@@ -73,8 +73,7 @@
 
 **nat.freecloud.ltd 如何获取 port 值：**
 1. 登录 [https://nat.freecloud.ltd/clientarea](https://nat.freecloud.ltd/clientarea)
-2. 查看页面源码或开发者工具
-3. 找到包含 `uid` 的参数值
+2. 用户名旁的ID即为该账号的 port 值
 
 #### ⚠️ 重要注意事项
 
