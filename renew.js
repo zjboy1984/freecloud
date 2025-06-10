@@ -198,9 +198,9 @@ function generateTelegramMessage(result) {
     if (delaySeconds > 0) {
       const minutes = Math.floor(delaySeconds / 60);
       const seconds = delaySeconds % 60;
-      message += `⏱️ 本次${DELAY_TYPE}: ${delaySeconds}秒 (${minutes}分${seconds}秒)\n`;
+      message += `⏱️ 本次执行${DELAY_TYPE}: ${delaySeconds}秒 (${minutes}分${seconds}秒)\n`;
     } else {
-      message += `⏱️ 本次${DELAY_TYPE}\n`;
+      message += `⏱️ 本次执行${DELAY_TYPE}\n`;
     }
   }
 
