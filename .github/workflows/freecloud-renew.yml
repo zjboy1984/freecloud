@@ -28,14 +28,19 @@ jobs:
         run: npm install node-fetch@2
 
       - name: 随机延迟执行
+        id: delay_step
         run: |
           # 检查是否为手动跳过延迟执行
           if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
             echo "🔧 手动执行且跳过延迟，立即开始续期"
+            echo "delay_seconds=0" >> $GITHUB_OUTPUT
+            echo "delay_type=手动跳过延迟" >> $GITHUB_OUTPUT
           else
             # 生成 0-300 秒（0-5分钟）的随机延迟
             DELAY=$((RANDOM % 300))
             echo "⏰ 随机延迟 $DELAY 秒 ($(($DELAY / 60)) 分钟 $(($DELAY % 60)) 秒)"
+            echo "delay_seconds=$DELAY" >> $GITHUB_OUTPUT
+            echo "delay_type=随机延迟" >> $GITHUB_OUTPUT
             sleep $DELAY
           fi
 
@@ -49,3 +54,7 @@ jobs:
           # FreeCloud 配置 (必需)
           FREECLOUD_ACCOUNTS: ${{ secrets.FREECLOUD_ACCOUNTS || vars.FREECLOUD_ACCOUNTS }}
           FREECLOUD_API_KEY: ${{ secrets.FREECLOUD_API_KEY || vars.FREECLOUD_API_KEY }}
+
+          # 延迟信息
+          DELAY_SECONDS: ${{ steps.delay_step.outputs.delay_seconds }}
+          DELAY_TYPE: ${{ steps.delay_step.outputs.delay_type }}
