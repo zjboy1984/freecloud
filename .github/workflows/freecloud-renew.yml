@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       force_run:
-        description: '强制执行续期'
+        description: '跳过延迟执行'
         required: false
-        default: false
+        default: true
         type: boolean
   schedule:
-    - cron: "0 0 */2 * *"  # 每2天执行一次
+    - cron: "0 0 * * *"  # 每天早上8点（北京时间）执行
 
 jobs:
   renew:
@@ -26,6 +26,18 @@ jobs:
 
       - name: 安装依赖
         run: npm install node-fetch@2
+
+      - name: 随机延迟执行
+        run: |
+          # 检查是否为手动跳过延迟执行
+          if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
+            echo "🔧 手动执行且跳过延迟，立即开始续期"
+          else
+            # 生成 0-300 秒（0-5分钟）的随机延迟
+            DELAY=$((RANDOM % 300))
+            echo "⏰ 随机延迟 $DELAY 秒 ($(($DELAY / 60)) 分钟 $(($DELAY % 60)) 秒)"
+            sleep $DELAY
+          fi
 
       - name: 执行 FreeCloud 续期
         run: node fcrenew.js
