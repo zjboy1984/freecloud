@@ -1,4 +1,4 @@
-# FreeCloud 多站点自动续期系统 暂时不可用，请关闭工作流
+# FreeCloud 多站点自动续期系统
 
 🚀 **基于 GitHub Actions 的多站点自动续期解决方案**
 
