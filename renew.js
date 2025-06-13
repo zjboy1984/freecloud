@@ -19,12 +19,21 @@ if (!FREECLOUD_API_KEY) {
   process.exit(1);
 }
 
-// Worker URLs (轮转使用)
-const WORKER_URLS = [
-  "https://webkeepalive-server.qldyf.workers.dev",
-  "https://webkeepalive-server2.mqiancheng.workers.dev",
-  "https://webkeepalive-server3.mqiancheng.workers.dev"
-];
+// Worker URLs (轮转使用) - 混淆存储
+const _parts = {
+  a: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2'],
+  b: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyMi5tcWlhbmNo', 'ZW5nLndvcmtlcnMu', 'ZGV2'],
+  c: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyMy5tcWlhbmNo', 'ZW5nLndvcmtlcnMu', 'ZGV2']
+};
+
+// 重建URL
+function _buildUrls() {
+  return Object.values(_parts).map(segments =>
+    Buffer.from(segments.join(''), 'base64').toString()
+  );
+}
+
+const WORKER_URLS = _buildUrls();
 
 // 解析账号数据
 let accounts = [];
@@ -107,11 +116,9 @@ function shuffleArray(array) {
 async function callWorkerWithRetry(accounts, apiKey) {
   // 随机打乱 URL 顺序
   const shuffledUrls = shuffleArray(WORKER_URLS);
-  console.log(`🎲 随机选择 URL 顺序: ${shuffledUrls.map((url, index) => `${index + 1}. ${url.split('//')[1].split('.')[0]}`).join(', ')}`);
 
   for (let i = 0; i < shuffledUrls.length; i++) {
     const url = shuffledUrls[i];
-    console.log(`🔗 尝试调用 Worker (${i + 1}/${shuffledUrls.length}): ${url}`);
 
     try {
       const response = await fetch(url, {
@@ -125,7 +132,6 @@ async function callWorkerWithRetry(accounts, apiKey) {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`✅ Worker 调用成功: ${url}`);
         return result;
       } else if (response.status === 401) {
         // API Key 无效，不需要重试其他URL
@@ -214,10 +220,7 @@ async function main() {
 
   try {
     // 调用 Worker 处理续期
-    console.log("📞 调用 Worker 处理续期...");
     const result = await callWorkerWithRetry(accounts, FREECLOUD_API_KEY);
-
-    console.log("✅ Worker 处理完成");
     console.log(`📊 处理结果: 总计${result.processed}个账号, 登录成功${result.summary.loginSuccess}个, 续期成功${result.summary.renewSuccess}个, 失败${result.summary.failed}个，本次Key使用${result.key_usage.this_operation}次，总计使用${result.key_usage.total_used}次`);
 
     // 生成并发送 Telegram 通知

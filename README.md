@@ -7,7 +7,6 @@
 - ✅ **多站点支持** - 支持 freecloud.ltd 和 nat.freecloud.ltd 两个站点
 - ✅ **自动续期** - 每天早上8点后随机5分钟内自动执行续期任务
 - ✅ **多账号支持** - 支持批量处理多个账号
-- ✅ **智能重试** - 多个 Worker URL 轮转，确保高可用性
 - ✅ **Telegram 通知** - 实时推送续期结果到 Telegram
 - ✅ **详细日志** - 完整的执行日志和错误信息
 - ✅ **手动触发** - 支持手动执行续期任务
@@ -17,7 +16,7 @@
 
 ### 1. Fork 或创建仓库
 
-加⭐收藏本项目，然后将此仓库 Fork 到你的 GitHub 账号。
+加⭐收藏本项目，然后将此仓库 Fork 到你的 GitHub 账号。u
 
 ### 2. 配置环境变量
 
@@ -30,7 +29,20 @@
 | 变量名 | 类型 | 说明 | 示例 |
 |--------|------|------|------|
 | `FREECLOUD_ACCOUNTS` | Secret | FreeCloud 账号列表 (JSON格式) | 见下方示例 |
-| `FREECLOUD_API_KEY` | Secret | 访问密钥使用`TEST123456789ABC` | `TEST123456789ABC` |
+| `FREECLOUD_API_KEY` | Secret | 访问密钥 | 见下方获取方法 |
+
+#### 🔑 API Key 获取方法
+
+**方式一：自助获取（推荐）**
+1. 访问 [fc.whoer.pp.ua](https://fc.whoer.pp.ua)
+2. 输入您的 GitHub 用户名
+3. 系统会自动验证您的 Star 状态并生成相应权限的 API Key
+4. 复制生成的 API Key 到 `FREECLOUD_API_KEY` 配置中
+
+**权限说明：**
+- 🆓 **未Star用户**：1个账号，每日1次
+- ⭐ **Star用户**：5个账号，每日1次（给本项目加Star即可获得）
+- 💎 **付费用户**：无限制账号和次数
 
 #### 可选配置 (Telegram 通知)
 
@@ -156,8 +168,6 @@
 ```
 🚀 开始执行 FreeCloud 自动续期
 📋 读取到 2 个账号
-🔗 尝试调用 Worker: https://webkeepalive-server.qldyf.workers.dev
-✅ Worker 调用成功
 📊 处理结果: 总计2个账号, 登录成功2个, 续期成功2个, 失败0个
 ✅ Telegram 消息已发送
 🎉 所有账号处理完成
@@ -194,7 +204,7 @@
 
 2. **Worker 调用失败**
    - 检查网络连接
-   - 验证 API Key 是否有效
+   - 验证 API Key 是否有效（建议重新从 fc.whoer.pp.ua 获取）
    - 查看 Actions 日志获取详细错误信息
 
 3. **账号处理失败**
