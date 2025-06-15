@@ -23,7 +23,7 @@ if (!FREECLOUD_API_KEY) {
 const _parts = {
   // 主处理器（URL1）
   primary: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2'],
-  // 辅助处理器（URL2）- Cloudflare隧道地址
+  // 辅助处理器（URL2）-
   secondary: ['aHR0cHM6Ly9mcmVl', 'Y2xvdWRuYXR0dWwu', 'd2hvZXIucHAudWEv']
 };
 
