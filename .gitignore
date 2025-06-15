@@ -57,6 +57,7 @@ _vti_pvt/
 *.bak
 *.backup
 *.old
+.gitignore
 
 # 压缩文件
 *.zip
