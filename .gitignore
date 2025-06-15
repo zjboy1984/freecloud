@@ -16,7 +16,8 @@ yarn.lock
 
 # 日志文件
 *.log
-主从Worker架构设计文档.md
+
+
 # 临时文件
 *.tmp
 *.temp
@@ -57,7 +58,6 @@ _vti_pvt/
 *.bak
 *.backup
 *.old
-.gitignore
 
 # 压缩文件
 *.zip
