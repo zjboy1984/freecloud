@@ -57,6 +57,35 @@ accounts.forEach((account, index) => {
 });
 
 /**
+ * 转义 Markdown 特殊字符
+ * @param {string} text - 要转义的文本
+ * @returns {string} 转义后的文本
+ */
+function escapeMarkdown(text) {
+  if (!text) return '';
+  return text.toString()
+    .replace(/\\/g, '\\\\')
+    .replace(/\*/g, '\\*')
+    .replace(/_/g, '\\_')
+    .replace(/\[/g, '\\[')
+    .replace(/\]/g, '\\]')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/~/g, '\\~')
+    .replace(/`/g, '\\`')
+    .replace(/>/g, '\\>')
+    .replace(/#/g, '\\#')
+    .replace(/\+/g, '\\+')
+    .replace(/-/g, '\\-')
+    .replace(/=/g, '\\=')
+    .replace(/\|/g, '\\|')
+    .replace(/\{/g, '\\{')
+    .replace(/\}/g, '\\}')
+    .replace(/\./g, '\\.')
+    .replace(/!/g, '\\!');
+}
+
+/**
  * 向 Telegram 推送消息
  * @param {string} message - 要发送的文本消息
  */
@@ -71,7 +100,7 @@ async function sendTelegramMessage(message) {
   const payload = {
     chat_id: TELEGRAM_CHAT_ID,
     text: message,
-    parse_mode: "Markdown"
+    parse_mode: "MarkdownV2"
   };
 
   try {
@@ -231,24 +260,27 @@ function generateTelegramMessage(result) {
 
   results.forEach((account, index) => {
     const num = index + 1;
-    const username = account.username;
-    const siteType = account.type || 'freecloud';
+    const username = escapeMarkdown(account.username);
+    const siteType = escapeMarkdown(account.type || 'freecloud');
 
     if (account.error) {
-      message += `❌ 账号${num} \`${username}\` (${siteType}) 处理失败: ${account.error}\n`;
+      const errorMsg = escapeMarkdown(account.error);
+      message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 处理失败: ${errorMsg}\n`;
     } else {
       // 登录状态
       if (account.loginSuccess) {
-        message += `✅ 账号${num} \`${username}\` (${siteType}) 登录成功\n`;
+        message += `✅ 账号${num} \`${username}\` \\(${siteType}\\) 登录成功\n`;
       } else {
-        message += `❌ 账号${num} \`${username}\` (${siteType}) 登录失败\n`;
+        message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 登录失败\n`;
       }
 
       // 续期状态
       if (account.renewSuccess) {
-        message += `💰 账号${num} \`${username}\` (${siteType}) 续期成功: ${account.message}\n`;
+        const renewMsg = escapeMarkdown(account.message || '');
+        message += `💰 账号${num} \`${username}\` \\(${siteType}\\) 续期成功: ${renewMsg}\n`;
       } else if (account.message) {
-        message += `⚠️ 账号${num} \`${username}\` (${siteType}) 续期结果: ${account.message}\n`;
+        const renewMsg = escapeMarkdown(account.message);
+        message += `⚠️ 账号${num} \`${username}\` \\(${siteType}\\) 续期结果: ${renewMsg}\n`;
       }
     }
 
@@ -258,16 +290,18 @@ function generateTelegramMessage(result) {
   // 添加延迟信息
   if (DELAY_SECONDS !== undefined && DELAY_TYPE !== undefined) {
     const delaySeconds = parseInt(DELAY_SECONDS) || 0;
+    const delayType = escapeMarkdown(DELAY_TYPE);
     if (delaySeconds > 0) {
       const minutes = Math.floor(delaySeconds / 60);
       const seconds = delaySeconds % 60;
-      message += `⏱️ 本次执行${DELAY_TYPE}: ${delaySeconds}秒 (${minutes}分${seconds}秒)\n`;
+      message += `⏱️ 本次执行${delayType}: ${delaySeconds}秒 \\(${minutes}分${seconds}秒\\)\n`;
     } else {
-      message += `⏱️ 本次执行${DELAY_TYPE}\n`;
+      message += `⏱️ 本次执行${delayType}\n`;
     }
   }
 
-  message += `⏰ 执行时间: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
+  const currentTime = escapeMarkdown(new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
+  message += `⏰ 执行时间: ${currentTime}`;
 
   return message;
 }
@@ -307,7 +341,9 @@ async function main() {
     console.error("❌ 执行失败:", error.message);
 
     // 发送错误通知
-    const errorMessage = `❌ *多站点续期失败*\n\n错误信息: ${error.message}\n\n⏰ 时间: ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
+    const errorMsg = escapeMarkdown(error.message);
+    const currentTime = escapeMarkdown(new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }));
+    const errorMessage = `❌ *多站点续期失败*\n\n错误信息: ${errorMsg}\n\n⏰ 时间: ${currentTime}`;
     await sendTelegramMessage(errorMessage);
 
     process.exit(1);
