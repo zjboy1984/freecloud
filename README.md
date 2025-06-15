@@ -77,9 +77,9 @@
 | `password` | 编码后的密码 | 见下方获取方法 |
 | `port` | 用户UID | 见下方获取方法 |
 
-**nat.freecloud.ltd 如何获取编码后的密码：**
-1. 打开浏览器开发者工具（F12）
-2. 登录 [https://nat.freecloud.ltd/login](https://nat.freecloud.ltd/login)
+**nat.freecloud.ltd 如何获取编码后的密码：（注意步骤顺序）**
+1. 登录 [https://nat.freecloud.ltd/login](https://nat.freecloud.ltd/login)填写账号密码
+2. 打开浏览器开发者工具（F12），切换到 Network 标签页，再点击页面中的登陆。
 3. 在 Network 标签页中找到登录请求，名称为/login?action=email
 4. 复制 负载 请求的参数中找到 `password` 值，类似 "ABDFSW21FA33vsq=="
 5. 进入 [https://www.json.cm/urlencode/](https://www.json.cm/urlencode/)，将 
