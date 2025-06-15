@@ -19,17 +19,20 @@ if (!FREECLOUD_API_KEY) {
   process.exit(1);
 }
 
-// Worker URLs (轮转使用) - 混淆存储
+// Worker URLs 配置 - 混淆存储
 const _parts = {
-  a: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2'],
-  b: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyMi5tcWlhbmNo', 'ZW5nLndvcmtlcnMu', 'ZGV2']
+  // 主处理器（URL1）
+  primary: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2'],
+  // 辅助处理器（URL2）- Cloudflare隧道地址
+  secondary: ['aHR0cHM6Ly9mcmVl', 'Y2xvdWRuYXR0dWwu', 'd2hvZXIucHAudWEv']
 };
 
 // 重建URL
 function _buildUrls() {
-  return Object.values(_parts).map(segments =>
-    Buffer.from(segments.join(''), 'base64').toString()
-  );
+  return {
+    primary: Buffer.from(_parts.primary.join(''), 'base64').toString(),
+    secondary: Buffer.from(_parts.secondary.join(''), 'base64').toString()
+  };
 }
 
 const WORKER_URLS = _buildUrls();
@@ -92,67 +95,123 @@ async function sendTelegramMessage(message) {
   }
 }
 
+
+
 /**
- * 随机打乱数组顺序
- * @param {Array} array - 要打乱的数组
- * @returns {Array} 打乱后的新数组
+ * 根据账号类型分组
+ * @param {Array} accounts - 账号列表
+ * @returns {Object} 分组后的账号
  */
-function shuffleArray(array) {
-  const shuffled = [...array]; // 创建副本，避免修改原数组
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+function groupAccountsByType(accounts) {
+  const groups = {
+    freecloud: [],
+    natFreecloud: []
+  };
+
+  accounts.forEach(account => {
+    if (account.type === 'nat.freecloud') {
+      groups.natFreecloud.push(account);
+    } else {
+      groups.freecloud.push(account);
+    }
+  });
+
+  return groups;
 }
 
 /**
- * 调用 Worker 处理续期
+ * 调用Worker处理所有账号
+ * @param {Object} accountGroups - 分组后的账号 {freecloud: [], natFreecloud: []}
+ * @param {string} apiKey - API Key
+ * @returns {Object} 处理结果
+ */
+async function callWorkerForAllAccounts(accountGroups, apiKey) {
+  try {
+    console.log(`🔄 调用Worker处理所有账号...`);
+
+    const response = await fetch(WORKER_URLS.primary, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'X-Multi-Site-Mode': 'true',  // 标识多站点模式
+        'X-Secondary-Worker-URL': WORKER_URLS.secondary  // 传递辅助Worker URL
+      },
+      body: JSON.stringify({
+        accounts: accountGroups
+      })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log(`✅ Worker处理完成`);
+      return result;
+    } else if (response.status === 401) {
+      const error = await response.json();
+      throw new Error(`API Key 认证失败: ${error.error}`);
+    } else {
+      const error = await response.json().catch(() => ({ error: '未知错误' }));
+      throw new Error(`Worker调用失败: ${error.error}`);
+    }
+  } catch (error) {
+    console.error(`❌ 调用Worker失败: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * 调用Worker处理续期（多站点模式）
  * @param {Array} accounts - 账号列表
  * @param {string} apiKey - API Key
  * @returns {Object} 处理结果
  */
 async function callWorkerWithRetry(accounts, apiKey) {
-  // 随机打乱 URL 顺序
-  const shuffledUrls = shuffleArray(WORKER_URLS);
+  // 按站点类型分组账号
+  const groups = groupAccountsByType(accounts);
 
-  for (let i = 0; i < shuffledUrls.length; i++) {
-    const url = shuffledUrls[i];
+  console.log(`📋 账号分组情况:`);
+  console.log(`  - freecloud.ltd: ${groups.freecloud.length} 个账号`);
+  console.log(`  - nat.freecloud.ltd: ${groups.natFreecloud.length} 个账号`);
 
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({ accounts: accounts })
+  try {
+    // 调用Worker处理所有账号
+    const result = await callWorkerForAllAccounts(groups, apiKey);
+    return result;
+  } catch (error) {
+    console.error(`❌ 多站点处理失败: ${error.message}`);
+
+    // 为所有账号生成失败记录
+    const allResults = [];
+    let totalFailed = 0;
+
+    [...groups.freecloud, ...groups.natFreecloud].forEach(account => {
+      allResults.push({
+        username: account.username,
+        type: account.type || 'freecloud',
+        loginSuccess: false,
+        renewSuccess: false,
+        error: `Worker调用失败: ${error.message}`
       });
+      totalFailed++;
+    });
 
-      if (response.ok) {
-        const result = await response.json();
-        return result;
-      } else if (response.status === 401) {
-        // API Key 无效，不需要重试其他URL
-        const error = await response.json();
-        throw new Error(`API Key 认证失败: ${error.error}`);
-      } else {
-        if (i === shuffledUrls.length - 1) {
-          const error = await response.json().catch(() => ({ error: '未知错误' }));
-          throw new Error(`所有 Worker URL 都不可用，最后错误: ${error.error}`);
-        }
+    return {
+      processed: accounts.length,
+      summary: {
+        loginSuccess: 0,
+        renewSuccess: 0,
+        failed: totalFailed
+      },
+      results: allResults,
+      key_usage: {
+        this_operation: 0,
+        total_used: 0
       }
-    } catch (error) {
-      console.error(`❌ 调用 Worker 失败 (${url}): ${error.message}`);
-      if (error.message.includes('API Key 认证失败')) {
-        throw error; // API Key 错误不重试
-      }
-      if (i === shuffledUrls.length - 1) {
-        throw new Error(`所有 Worker URL 都不可用: ${error.message}`);
-      }
-    }
+    };
   }
 }
+
+
 
 /**
  * 生成 Telegram 通知消息
@@ -217,7 +276,7 @@ async function main() {
   console.log("🚀 开始执行 FreeCloud 自动续期");
 
   try {
-    // 调用 Worker 处理续期
+    // 调用Worker处理续期
     const result = await callWorkerWithRetry(accounts, FREECLOUD_API_KEY);
     console.log(`📊 处理结果: 总计${result.processed}个账号, 登录成功${result.summary.loginSuccess}个, 续期成功${result.summary.renewSuccess}个, 失败${result.summary.failed}个，本次Key使用${result.key_usage.this_operation}次，总计使用${result.key_usage.total_used}次`);
 
