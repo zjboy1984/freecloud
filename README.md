@@ -2,6 +2,8 @@
 
 🚀 **基于 GitHub Actions 的多站点自动续期解决方案**
 
+🚀 项目地址：[github.com/mqiancheng/freecloud](https://github.com/mqiancheng/freecloud)
+
 ## 📋 功能特性
 
 - ✅ **多站点支持** - 支持 freecloud.ltd 和 nat.freecloud.ltd 两个站点
