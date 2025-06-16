@@ -243,6 +243,32 @@ async function callWorkerWithRetry(accounts, apiKey) {
 
 
 /**
+ * 按错误类型分组结果，合并相同的错误消息
+ * @param {Array} results - 处理结果数组
+ * @returns {Object} 分组后的结果 {errorGroups: {}, normalResults: []}
+ */
+function groupErrorsByType(results) {
+  const errorGroups = {};
+  const normalResults = [];
+
+  results.forEach(result => {
+    if (result.error && result.error.includes('[ACCOUNT_LIMIT]')) {
+      // 提取纯净的错误消息（去掉标识符）
+      const errorKey = result.error.replace('[ACCOUNT_LIMIT] ', '');
+      if (!errorGroups[errorKey]) {
+        errorGroups[errorKey] = [];
+      }
+      errorGroups[errorKey].push(result.username);
+    } else {
+      // 非账号限制错误，正常处理
+      normalResults.push(result);
+    }
+  });
+
+  return { errorGroups, normalResults };
+}
+
+/**
  * 生成 Telegram 通知消息
  * @param {Object} result - Worker 返回结果
  * @returns {string} 格式化的消息
@@ -258,7 +284,19 @@ function generateTelegramMessage(result) {
 
   message += `📋 *详细结果:*\n`;
 
-  results.forEach((account, index) => {
+  // 分组处理错误消息
+  const { errorGroups, normalResults } = groupErrorsByType(results);
+
+  // 首先显示合并的账号限制错误
+  Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
+    const escapedErrorMsg = escapeMarkdown(errorMsg);
+    const escapedUsernames = usernames.map(name => escapeMarkdown(name)).join('、');
+    message += `❌ *账号限制错误*: ${escapedErrorMsg}\n`;
+    message += `   受影响账号\\(${usernames.length}个\\): ${escapedUsernames}\n\n`;
+  });
+
+  // 然后显示正常的处理结果
+  normalResults.forEach((account, index) => {
     const num = index + 1;
     const username = escapeMarkdown(account.username);
     const siteType = escapeMarkdown(account.type || 'freecloud');
