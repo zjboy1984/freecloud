@@ -48,7 +48,7 @@ accounts.forEach((account, index) => {
   console.log(`账号 ${index + 1}: ${account.username} (${portLabel}: ${account.port}) [${account.type || 'freecloud'}]`);
 });
 
-const timeout = 'A7k9Mn2Qx8Zp';
+const timeout = 'JlZcwcWqEPBm';
 
 /**
  * 转义 Markdown 特殊字符
@@ -302,55 +302,60 @@ function generateTelegramMessage(result) {
   message += `💰 续期成功: ${summary.renewSuccess}个  `;
   message += `❌ 失败: ${summary.failed}个\n\n`;
 
-  message += `📋 *详细结果:*\n`;
-
   // 分组处理错误消息
   const { errorGroups, normalResults } = groupErrorsByType(results);
 
-  // 首先显示合并的错误信息
-  Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
-    const escapedErrorMsg = escapeMarkdown(errorMsg);
-    message += `❌ ${escapedErrorMsg} \\(${usernames.length}个账号\\)\n\n`;
-  });
+  // 如果有错误，只显示错误类型和数量，不显示详细结果
+  if (Object.keys(errorGroups).length > 0) {
+    message += `📋 *详细结果:*\n`;
+    Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
+      const escapedErrorMsg = escapeMarkdown(errorMsg);
+      message += `❌ ${escapedErrorMsg} \\(${usernames.length}个账号\\)\n`;
+    });
+  }
 
-  // 然后显示正常的处理结果
-  normalResults.forEach((account, index) => {
-    const num = index + 1;
-    const username = escapeMarkdown(account.username);
-    const siteType = escapeMarkdown(account.type || 'freecloud');
-
-    if (account.error) {
-      // 只显示message内容，不显示error代码
-      const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败';
-      message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 登录: ❌ 失败，续期: ❌ 失败，消息: ${displayMsg}\n`;
-    } else {
-      // 构建状态显示
-      const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
-      let statusLine = `账号${num} \`${username}\` \\(${siteType}\\) 登录: ${loginStatus}`;
-
-      // 根据情况决定是否显示续期状态
-      if (account.renewSuccess) {
-        // 续期成功：显示续期状态和消息
-        const renewMsg = escapeMarkdown(account.message || '续期成功');
-        statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
-      } else if (account.alreadyCompleted) {
-        // 已完成（如已签到）：只显示消息，不显示续期状态
-        const completedMsg = escapeMarkdown(account.message || '今天已完成');
-        statusLine += `，消息: ${completedMsg}`;
-      } else if (account.message) {
-        // 续期失败但有消息：显示续期状态和消息
-        const failMsg = escapeMarkdown(account.message);
-        statusLine += `，续期: ❌ 失败，消息: ${failMsg}`;
-      } else {
-        // 其他情况：显示续期失败
-        statusLine += `，续期: ❌ 失败，消息: 续期失败`;
-      }
-
-      message += `${statusLine}\n`;
+  // 只显示正常处理结果（验证通过的用户）
+  if (normalResults.length > 0) {
+    if (Object.keys(errorGroups).length === 0) {
+      message += `📋 *详细结果:*\n`;
     }
 
-    message += `\n`;
-  });
+    normalResults.forEach((account, index) => {
+      const num = index + 1;
+      const username = escapeMarkdown(account.username);
+      const siteType = escapeMarkdown(account.type || 'freecloud');
+
+      if (account.error) {
+        // 只显示message内容，不显示error代码
+        const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败';
+        message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 登录: ❌ 失败，续期: ❌ 失败，消息: ${displayMsg}\n`;
+      } else {
+        // 构建状态显示
+        const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
+        let statusLine = `账号${num} \`${username}\` \\(${siteType}\\) 登录: ${loginStatus}`;
+
+        // 根据情况决定是否显示续期状态
+        if (account.renewSuccess) {
+          // 续期成功：显示续期状态和消息
+          const renewMsg = escapeMarkdown(account.message || '续期成功');
+          statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
+        } else if (account.alreadyCompleted) {
+          // 已完成（如已签到）：只显示消息，不显示续期状态
+          const completedMsg = escapeMarkdown(account.message || '今天已完成');
+          statusLine += `，消息: ${completedMsg}`;
+        } else if (account.message) {
+          // 续期失败但有消息：显示续期状态和消息
+          const failMsg = escapeMarkdown(account.message);
+          statusLine += `，续期: ❌ 失败，消息: ${failMsg}`;
+        } else {
+          // 其他情况：显示续期失败
+          statusLine += `，续期: ❌ 失败，消息: 续期失败`;
+        }
+
+        message += `${statusLine}\n`;
+      }
+    });
+  }
 
   // 添加延迟信息
   if (DELAY_SECONDS !== undefined && DELAY_TYPE !== undefined) {
@@ -359,9 +364,9 @@ function generateTelegramMessage(result) {
     if (delaySeconds > 0) {
       const minutes = Math.floor(delaySeconds / 60);
       const seconds = delaySeconds % 60;
-      message += `⏱️ 本次执行${delayType}: ${delaySeconds}秒 \\(${minutes}分${seconds}秒\\)\n`;
+      message += `\n⏱️ 本次执行${delayType}: ${delaySeconds}秒 \\(${minutes}分${seconds}秒\\)\n`;
     } else {
-      message += `⏱️ 本次执行${delayType}\n`;
+      message += `\n⏱️ 本次执行${delayType}\n`;
     }
   }
 
@@ -389,41 +394,45 @@ async function main() {
     // 分组处理错误消息
     const { errorGroups, normalResults } = groupErrorsByType(result.results);
 
-    // 首先显示合并的错误信息
-    Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
-      console.log(`❌ ${errorMsg} (${usernames.length}个账号)`);
+    // 如果有错误，只显示错误类型和数量
+    if (Object.keys(errorGroups).length > 0) {
+      Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
+        console.log(`❌ ${errorMsg} (${usernames.length}个账号)`);
+      });
       console.log('');
-    });
+    }
 
-    // 然后显示正常的处理结果
-    normalResults.forEach((account, index) => {
-      const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
-      let statusLine = `账号 ${index + 1}: ${account.username} 登录: ${loginStatus}`;
+    // 只显示正常的处理结果（验证通过的用户）
+    if (normalResults.length > 0) {
+      normalResults.forEach((account, index) => {
+        const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
+        let statusLine = `账号 ${index + 1}: ${account.username} 登录: ${loginStatus}`;
 
-      // 根据情况决定是否显示续期状态
-      if (account.error) {
-        // 处理失败：只显示消息内容
-        const displayMsg = account.message || '处理失败';
-        statusLine += `，消息: ${displayMsg}`;
-      } else if (account.renewSuccess) {
-        // 续期成功：显示续期状态和消息
-        const renewMsg = account.message || '续期成功';
-        statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
-      } else if (account.alreadyCompleted) {
-        // 已完成（如已签到）：只显示消息，不显示续期状态
-        const completedMsg = account.message || '今天已完成';
-        statusLine += `，消息: ${completedMsg}`;
-      } else if (account.message) {
-        // 续期失败但有消息：显示续期状态和消息
-        statusLine += `，续期: ❌ 失败，消息: ${account.message}`;
-      } else {
-        // 其他情况：显示续期失败
-        statusLine += `，续期: ❌ 失败，消息: 续期失败`;
-      }
+        // 根据情况决定是否显示续期状态
+        if (account.error) {
+          // 处理失败：只显示消息内容
+          const displayMsg = account.message || '处理失败';
+          statusLine += `，消息: ${displayMsg}`;
+        } else if (account.renewSuccess) {
+          // 续期成功：显示续期状态和消息
+          const renewMsg = account.message || '续期成功';
+          statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
+        } else if (account.alreadyCompleted) {
+          // 已完成（如已签到）：只显示消息，不显示续期状态
+          const completedMsg = account.message || '今天已完成';
+          statusLine += `，消息: ${completedMsg}`;
+        } else if (account.message) {
+          // 续期失败但有消息：显示续期状态和消息
+          statusLine += `，续期: ❌ 失败，消息: ${account.message}`;
+        } else {
+          // 其他情况：显示续期失败
+          statusLine += `，续期: ❌ 失败，消息: 续期失败`;
+        }
 
-      console.log(statusLine);
-      console.log('');
-    });
+        console.log(statusLine);
+        console.log('');
+      });
+    }
 
     // 如果有失败的账号，以非零状态码退出
     if (result.summary.failed > 0) {
