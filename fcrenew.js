@@ -19,23 +19,15 @@ if (!FREECLOUD_API_KEY) {
   process.exit(1);
 }
 
-// Worker URLs 配置 - 混淆存储
-const _parts = {
-  // 主处理器（URL1）
-  primary: ['aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2'],
-  // 辅助处理器（URL2）-
-  secondary: ['aHR0cHM6Ly9mcmVl', 'Y2xvdWRuYXR0dWwu', 'd2hvZXIucHAudWEv']
-};
+// Worker URL配置 - 混淆存储
+const _primaryParts = [
+  'aHR0cHM6Ly93ZWJr', 'ZWVwYWxpdmUtc2Vy', 'dmVyLnFsZHlmLndv', 'cmtlcnMuZGV2Lw==',
+  'aHR0cHM6Ly9mcmVl', 'Y2xvdWRuYXR0dWwu', 'd2hvZXIucHAudWEv'
+];
 
 // 重建URL
-function _buildUrls() {
-  return {
-    primary: Buffer.from(_parts.primary.join(''), 'base64').toString(),
-    secondary: Buffer.from(_parts.secondary.join(''), 'base64').toString()
-  };
-}
-
-const WORKER_URLS = _buildUrls();
+const WORKER_URL = Buffer.from(_primaryParts.slice(0, 4).join(''), 'base64').toString();
+const SECONDARY_URL = Buffer.from(_primaryParts.slice(4, 7).join(''), 'base64').toString();
 
 // 解析账号数据
 let accounts = [];
@@ -55,6 +47,8 @@ accounts.forEach((account, index) => {
   const portLabel = account.type === 'nat.freecloud' ? 'UID' : '端口';
   console.log(`账号 ${index + 1}: ${account.username} (${portLabel}: ${account.port}) [${account.type || 'freecloud'}]`);
 });
+
+const timeout = 'A7k9Mn2Qx8Zp';
 
 /**
  * 转义 Markdown 特殊字符
@@ -158,13 +152,14 @@ async function callWorkerForAllAccounts(accountGroups, apiKey) {
   try {
     console.log(`🔄 调用Worker处理所有账号...`);
 
-    const response = await fetch(WORKER_URLS.primary, {
+    const response = await fetch(WORKER_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
         'X-Multi-Site-Mode': 'true',  // 标识多站点模式
-        'X-Secondary-Worker-URL': WORKER_URLS.secondary  // 传递辅助Worker URL
+        'X-Secondary-Worker-URL': SECONDARY_URL,  // 传递主URL2
+        'X-Request-Timeout': timeout  // 版本验证码
       },
       body: JSON.stringify({
         accounts: accountGroups
@@ -178,6 +173,15 @@ async function callWorkerForAllAccounts(accountGroups, apiKey) {
     } else if (response.status === 401) {
       const error = await response.json();
       throw new Error(`API Key 认证失败: ${error.error}`);
+    } else if (response.status === 426) {
+      // 版本过旧，需要更新
+      console.error('\n' + '='.repeat(60));
+      console.error('❌ 版本验证失败！');
+      console.error('='.repeat(60));
+      console.error('您的代码版本过旧，请同步更新fork仓库');
+      console.error('https://github.com/mqiancheng/freecloud');
+      console.error('='.repeat(60) + '\n');
+      throw new Error('版本验证失败，请更新代码');
     } else {
       const error = await response.json().catch(() => ({ error: '未知错误' }));
       throw new Error(`Worker调用失败: ${error.error}`);
@@ -302,24 +306,33 @@ function generateTelegramMessage(result) {
     const siteType = escapeMarkdown(account.type || 'freecloud');
 
     if (account.error) {
-      const errorMsg = escapeMarkdown(account.error);
-      message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 处理失败: ${errorMsg}\n`;
+      // 只显示message内容，不显示error代码
+      const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败';
+      message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 登录: ❌ 失败，续期: ❌ 失败，消息: ${displayMsg}\n`;
     } else {
-      // 登录状态
-      if (account.loginSuccess) {
-        message += `✅ 账号${num} \`${username}\` \\(${siteType}\\) 登录成功\n`;
+      // 构建状态显示
+      const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
+      let statusLine = `账号${num} \`${username}\` \\(${siteType}\\) 登录: ${loginStatus}`;
+
+      // 根据情况决定是否显示续期状态
+      if (account.renewSuccess) {
+        // 续期成功：显示续期状态和消息
+        const renewMsg = escapeMarkdown(account.message || '续期成功');
+        statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
+      } else if (account.alreadyCompleted) {
+        // 已完成（如已签到）：只显示消息，不显示续期状态
+        const completedMsg = escapeMarkdown(account.message || '今天已完成');
+        statusLine += `，消息: ${completedMsg}`;
+      } else if (account.message) {
+        // 续期失败但有消息：显示续期状态和消息
+        const failMsg = escapeMarkdown(account.message);
+        statusLine += `，续期: ❌ 失败，消息: ${failMsg}`;
       } else {
-        message += `❌ 账号${num} \`${username}\` \\(${siteType}\\) 登录失败\n`;
+        // 其他情况：显示续期失败
+        statusLine += `，续期: ❌ 失败，消息: 续期失败`;
       }
 
-      // 续期状态
-      if (account.renewSuccess) {
-        const renewMsg = escapeMarkdown(account.message || '');
-        message += `💰 账号${num} \`${username}\` \\(${siteType}\\) 续期成功: ${renewMsg}\n`;
-      } else if (account.message) {
-        const renewMsg = escapeMarkdown(account.message);
-        message += `⚠️ 账号${num} \`${username}\` \\(${siteType}\\) 续期结果: ${renewMsg}\n`;
-      }
+      message += `${statusLine}\n`;
     }
 
     message += `\n`;
@@ -359,11 +372,31 @@ async function main() {
     // 输出详细结果
     console.log("\n📋 详细处理结果:");
     result.results.forEach((account, index) => {
-      console.log(`账号 ${index + 1}: ${account.username}`);
-      console.log(`  登录: ${account.loginSuccess ? '✅ 成功' : '❌ 失败'}`);
-      console.log(`  续期: ${account.renewSuccess ? '✅ 成功' : '❌ 失败'}`);
-      if (account.message) console.log(`  消息: ${account.message}`);
-      if (account.error) console.log(`  错误: ${account.error}`);
+      const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
+      let statusLine = `账号 ${index + 1}: ${account.username} 登录: ${loginStatus}`;
+
+      // 根据情况决定是否显示续期状态
+      if (account.error) {
+        // 处理失败：只显示消息，不显示错误代码
+        const displayMsg = account.message || '处理失败';
+        statusLine += `，续期: ❌ 失败，消息: ${displayMsg}`;
+      } else if (account.renewSuccess) {
+        // 续期成功：显示续期状态和消息
+        const renewMsg = account.message || '续期成功';
+        statusLine += `，续期: ✅ 成功，消息: ${renewMsg}`;
+      } else if (account.alreadyCompleted) {
+        // 已完成（如已签到）：只显示消息，不显示续期状态
+        const completedMsg = account.message || '今天已完成';
+        statusLine += `，消息: ${completedMsg}`;
+      } else if (account.message) {
+        // 续期失败但有消息：显示续期状态和消息
+        statusLine += `，续期: ❌ 失败，消息: ${account.message}`;
+      } else {
+        // 其他情况：显示续期失败
+        statusLine += `，续期: ❌ 失败，消息: 续期失败`;
+      }
+
+      console.log(statusLine);
       console.log('');
     });
 
