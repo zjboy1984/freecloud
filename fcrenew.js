@@ -256,15 +256,31 @@ function groupErrorsByType(results) {
   const normalResults = [];
 
   results.forEach(result => {
-    if (result.error && result.error.includes('[ACCOUNT_LIMIT]')) {
+    // 检查是否为需要合并的错误类型
+    if (result.error && (
+      result.error.includes('[ACCOUNT_LIMIT]') ||
+      result.error.includes('API Key') ||
+      result.error.includes('版本验证失败') ||
+      result.error.includes('Worker调用失败')
+    )) {
       // 提取纯净的错误消息（去掉标识符）
-      const errorKey = result.error.replace('[ACCOUNT_LIMIT] ', '');
+      let errorKey = result.error.replace('[ACCOUNT_LIMIT] ', '');
+
+      // 简化错误消息显示
+      if (errorKey.includes('API Key')) {
+        errorKey = 'API Key错误';
+      } else if (errorKey.includes('版本验证失败')) {
+        errorKey = '版本验证失败';
+      } else if (errorKey.includes('Worker调用失败')) {
+        errorKey = 'Worker调用失败';
+      }
+
       if (!errorGroups[errorKey]) {
         errorGroups[errorKey] = [];
       }
       errorGroups[errorKey].push(result.username);
     } else {
-      // 非账号限制错误，正常处理
+      // 非合并错误，正常处理
       normalResults.push(result);
     }
   });
@@ -291,12 +307,10 @@ function generateTelegramMessage(result) {
   // 分组处理错误消息
   const { errorGroups, normalResults } = groupErrorsByType(results);
 
-  // 首先显示合并的账号限制错误
+  // 首先显示合并的错误信息
   Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
     const escapedErrorMsg = escapeMarkdown(errorMsg);
-    const escapedUsernames = usernames.map(name => escapeMarkdown(name)).join('、');
-    message += `❌ *账号限制错误*: ${escapedErrorMsg}\n`;
-    message += `   受影响账号\\(${usernames.length}个\\): ${escapedUsernames}\n\n`;
+    message += `❌ ${escapedErrorMsg} \\(${usernames.length}个账号\\)\n\n`;
   });
 
   // 然后显示正常的处理结果
@@ -371,15 +385,26 @@ async function main() {
 
     // 输出详细结果
     console.log("\n📋 详细处理结果:");
-    result.results.forEach((account, index) => {
+
+    // 分组处理错误消息
+    const { errorGroups, normalResults } = groupErrorsByType(result.results);
+
+    // 首先显示合并的错误信息
+    Object.entries(errorGroups).forEach(([errorMsg, usernames]) => {
+      console.log(`❌ ${errorMsg} (${usernames.length}个账号)`);
+      console.log('');
+    });
+
+    // 然后显示正常的处理结果
+    normalResults.forEach((account, index) => {
       const loginStatus = account.loginSuccess ? '✅ 成功' : '❌ 失败';
       let statusLine = `账号 ${index + 1}: ${account.username} 登录: ${loginStatus}`;
 
       // 根据情况决定是否显示续期状态
       if (account.error) {
-        // 处理失败：只显示消息，不显示错误代码
+        // 处理失败：只显示消息内容
         const displayMsg = account.message || '处理失败';
-        statusLine += `，续期: ❌ 失败，消息: ${displayMsg}`;
+        statusLine += `，消息: ${displayMsg}`;
       } else if (account.renewSuccess) {
         // 续期成功：显示续期状态和消息
         const renewMsg = account.message || '续期成功';
