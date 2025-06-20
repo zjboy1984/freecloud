@@ -9,7 +9,7 @@ on:
         default: true
         type: boolean
   schedule:
-    - cron: "0 0 * * *"  # 每天早上8点（北京时间）执行
+    - cron: "0 2 * * *"  # 每天早上10点（UTC+8北京时间）执行，建议大家随机修改“2”这个时间，不一定要跟我一样
 
 jobs:
   renew:
@@ -36,8 +36,8 @@ jobs:
             echo "delay_seconds=0" >> $GITHUB_OUTPUT
             echo "delay_type=手动跳过延迟" >> $GITHUB_OUTPUT
           else
-            # 生成 0-300 秒（0-5分钟）的随机延迟
-            DELAY=$((RANDOM % 300))
+            # 生成 0-900 秒（0-15分钟）的随机延迟
+            DELAY=$((RANDOM % 900))
             echo "⏰ 随机延迟 $DELAY 秒 ($(($DELAY / 60)) 分钟 $(($DELAY % 60)) 秒)"
             echo "delay_seconds=$DELAY" >> $GITHUB_OUTPUT
             echo "delay_type=随机延迟" >> $GITHUB_OUTPUT
