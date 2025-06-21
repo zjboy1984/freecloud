@@ -6,7 +6,11 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
-1.md
+
+# main分支排除的文件（仅用于技术分享）
+1.md                    # service分支的使用说明
+fcrenew.js             # 实际服务代码
+.github/               # GitHub工作流文件
 
 # 环境变量文件
 .env
