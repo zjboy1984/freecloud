@@ -4,6 +4,18 @@
 
 🚀 项目地址：[github.com/mqiancheng/freecloud](https://github.com/mqiancheng/freecloud)
 
+---
+
+## ⚠️ 🔴 重要安全警告 🔴 ⚠️
+
+> **🚨 隐私风险提示：本项目服务调用本人部署的API，会收集用户密码等敏感信息！**
+>
+> **🔒 如果您介意隐私安全问题，请勿使用本项目！**
+>
+> **💡 建议：如有技术能力，请自行部署API服务以确保数据安全。**
+
+---
+
 ## 📋 功能特性
 
 - ✅ **多站点支持** - 支持 freecloud.ltd 和 nat.freecloud.ltd 两个站点
