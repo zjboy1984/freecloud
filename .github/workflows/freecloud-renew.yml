@@ -10,7 +10,7 @@ on:
         default: true
         type: boolean
   schedule:
-    - cron: "*/2 * * * *"  # 每天早上10点（UTC+8北京时间）执行，建议大家随机修改“2”这个时间，不一定要跟我一样
+    - cron: "*/5 * * * *"  # 每天早上10点（UTC+8北京时间）执行，建议大家随机修改“2”这个时间，不一定要跟我一样
   # 移除push和pull_request触发器，只保留手动触发和定时触发
   # push:
   #   branches: [ service ]
