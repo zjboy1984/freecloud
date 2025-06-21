@@ -8,9 +8,9 @@ package-lock.json
 yarn.lock
 
 # main分支排除的文件（仅用于技术分享）
-1.md                    # service分支的使用说明
-fcrenew.js             # 实际服务代码
-.github/               # GitHub工作流文件
+1.md
+fcrenew.js
+.github/
 
 # 环境变量文件
 .env
@@ -21,7 +21,6 @@ fcrenew.js             # 实际服务代码
 
 # 日志文件
 *.log
-架构设计文档.md
 
 # 临时文件
 *.tmp
