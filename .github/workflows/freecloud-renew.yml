@@ -18,8 +18,8 @@ on:
 jobs:
   renew:
     runs-on: ubuntu-latest
-    # 确保只在service分支上运行
-    if: github.ref == 'refs/heads/service' || github.event_name == 'workflow_dispatch'
+    # 允许手动执行，但自动执行只在service分支
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.ref == 'refs/heads/service') || (github.event_name == 'push' && github.ref == 'refs/heads/service')
 
     steps:
       - name: 检出代码
