@@ -1,407 +1,267 @@
-# 🌐 FreeCloud 自动续费系统
+# FreeCloud 多站点自动续期系统（禁止滥用）
 
-> 📋 **项目状态说明**
+🚀 **基于 GitHub Actions 的多站点自动续期解决方案**
 
-## 🔀 分支说明
+🚀 项目地址：[github.com/mqiancheng/freecloud](https://github.com/mqiancheng/freecloud)
 
-本项目包含两个主要分支：
+---
 
-### 📚 main 分支（当前）- 技术分享版
-- **用途**：技术学习和研究
-- **状态**：服务已停止，转为技术分享
-- **内容**：完整的系统架构文档、代码分享说明
-- **适合**：开发者学习分布式系统设计
+## ⚠️ 🔴 重要安全警告 🔴 ⚠️
 
-### 🚀 service 分支 - 服务版本
-- **用途**：继续提供续费服务
-- **状态**：正常运行中
-- **内容**：可用的续费脚本和使用说明
-- **适合**：需要续费服务的用户
+> **🚨 隐私风险提示：本项目服务调用本人部署的API，会收集用户密码等敏感信息！**
+>
+> **🔒 如果您介意隐私安全问题，请勿使用本项目！**
+>
+> **💡 建议：如有技术能力，请自行部署API服务以确保数据安全。**
 
-## 🎯 快速导航
+---
 
-### 想继续使用服务？
-👉 **切换到 [service 分支](../../tree/service)**
+## 📋 功能特性
+
+- ✅ **多站点支持** - 支持 freecloud.ltd 和 nat.freecloud.ltd 两个站点
+- ✅ **自动续期** - 每天早上8点后随机15分钟内自动执行续期任务
+- ✅ **多账号支持** - 支持批量处理多个账号
+- ✅ **Telegram 通知** - 实时推送续期结果到 Telegram
+- ✅ **详细日志** - 完整的执行日志和错误信息
+- ✅ **手动触发** - 支持手动执行续期任务
+- ✅ **统一配置** - 所有站点使用相同的配置格式
+
+## 🔧 部署步骤
+
+### 1. Fork 或创建仓库
+
+加⭐收藏本项目，然后将此仓库 Fork 到你的 GitHub 账号。
+
+### 2. 切换到 service 分支
+
+**重要：** 确保您在 service 分支上进行配置和使用！
 
 ```bash
 git checkout service
 ```
 
-### 想学习技术实现？
-👉 **继续阅读本分支的技术文档**
+或者直接访问：[service 分支](../../tree/service)
 
----
+### 3. 配置环境变量
 
-## 📢 技术分享说明
+在 GitHub 仓库中配置以下环境变量：
 
-**本分支（main）专注于技术分享：**
-- ✅ 完整的系统架构设计
-- ✅ 分布式系统实现思路
-- ✅ Cloudflare Workers 开发实践
-- ✅ 用户权限管理系统设计
-- ❌ 不包含可运行的服务代码
+**Settings → Secrets and variables → Actions**
 
-## 🎯 技术分享价值
+#### 必需配置
 
-虽然服务已停止，但本项目在技术上具有很高的学习价值：
+| 变量名 | 类型 | 说明 | 示例 |
+|--------|------|------|------|
+| `FREECLOUD_ACCOUNTS` | Secret | FreeCloud 账号列表 (JSON格式) | 见下方示例 |
+| `FREECLOUD_API_KEY` | Secret | 访问密钥 | 见下方获取方法 |
 
-**系统架构设计：**
-- 分布式微服务架构
-- 负载均衡和故障转移
-- 用户权限管理系统
-- 数据统计和监控
+#### 🔑 API Key 获取方法
 
-**Cloudflare Workers 实践：**
-- Serverless 应用开发
-- D1 数据库使用
-- 边缘计算优化
-- 全球CDN部署
+**方式一：自助获取（推荐）**
+1. 访问 [fc.whoer.pp.ua](https://fc.whoer.pp.ua)
+2. 输入您的 GitHub 用户名
+3. 系统会自动验证您的 Star 状态并生成相应权限的 API Key
+4. 复制生成的 API Key 到 `FREECLOUD_API_KEY` 配置中
 
-## 🏗️ 系统架构概览
+**权限说明：**
+- 🆓 **未Star用户**：1个账号，每日1次
+- ⭐ **Star用户**：5个账号，每日1次（给[本项目](https://github.com/mqiancheng/freecloud)加Star即可获得）
+- 💎 **付费用户**：无限制账号和次数
 
-### 整体架构图
+#### 可选配置 (Telegram 通知)
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   前端客户端     │───▶│   WorkerA (URL1) │───▶│   WorkerB (管理) │
-│   (fcrenew.js)  │    │   请求转发/验证   │    │   API Key管理   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │
-                              ▼
-                       ┌─────────────────┐
-                       │   URL2 服务群   │
-                       │   (实际处理)    │
-                       └─────────────────┘
-```
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| `TELEGRAM_BOT_TOKEN` | Secret | Telegram Bot Token |
+| `TELEGRAM_CHAT_ID` | Secret | Telegram Chat ID |
 
-### 核心技术特点
 
-#### 1. **分布式架构**
-- 微服务设计，职责分离
-- 负载均衡和故障转移
-- 水平扩展能力
+#### 🔧 站点类型说明
 
-#### 2. **用户权限系统**
-- API Key 认证机制
-- 多级权限管理 (免费/Star/付费)
-- GitHub Star 状态自动同步
+##### **freecloud.ltd 站点配置**
 
-#### 3. **数据管理**
-- Cloudflare D1 数据库
-- 完整的CRUD操作
-- 数据统计和分析
+| 字段 | 说明 | 获取方法 |
+|------|------|----------|
+| `type` | 固定填写 `"freecloud"` | - |
+| `username` | 用户名 | 注册时的邮箱/用户名 |
+| `password` | 密码 | 注册时的密码 |
+| `port` | 端口号 | 见下方获取方法 |
 
-#### 4. **管理后台**
-- 用户友好的Web界面
-- 实时数据监控
-- 日志查看和管理
+**freecloud.ltd如何获取 port 值：**
+1. 登录 [https://freecloud.ltd/server/lxc](https://freecloud.ltd/server/lxc)
+2. 查看服务器地区前面显示的编号，格式为 `#1234`
+3. 其中 `1234` 即为该账号的 port 值
 
-## 📁 开源代码结构
+##### **nat.freecloud.ltd 站点配置**
 
-### 已公开部分
-```
-freecloud/                  # 前端客户端
-├── fcrenew.js             # 续费脚本 (已公开)
-└── README.md              # 项目说明
+| 字段 | 说明 | 获取方法 |
+|------|------|----------|
+| `type` | 固定填写 `"nat.freecloud"` | - |
+| `username` | 邮箱地址（注意：这里填邮箱，不是用户名） | 注册时的邮箱 |
+| `password` | 编码后的密码 | 见下方获取方法 |
+| `port` | 用户UID | 见下方获取方法 |
 
-shared-code/               # 即将公开的代码
-├── management-system/     # 完整的管理系统
-├── database/             # 数据库设计和操作
-├── worker-a/             # 请求处理逻辑 (部分)
-└── deployment/           # 部署配置和文档
-```
+**nat.freecloud.ltd 如何获取编码后的密码：（注意步骤顺序）**
+1. 登录 [https://nat.freecloud.ltd/login](https://nat.freecloud.ltd/login)填写账号密码
+2. 打开浏览器开发者工具（F12），切换到 Network 标签页，再点击页面中的登陆。
+3. 在 Network 标签页中找到登录请求，名称为/login?action=email
+4. 复制 负载 请求的参数中找到 `password` 值，类似 "ABDFSW21FA33vsq=="
+5. 进入 [https://www.json.cm/urlencode/](https://www.json.cm/urlencode/)，将 
+   编码后的密码粘贴到解码框中，点击Url编码即可得到编码后的 `password` 真实值
 
-### 技术保护部分
-```
-private-algorithms/        # 不公开的核心算法
-├── captcha-solver/       # 验证码识别处理
-├── math-solver/          # 数学验证算法
-├── cf-bypass/            # CF挑战绕过方法
-└── target-apis/          # 具体接口调用逻辑
--- 主要数据表结构
-CREATE TABLE keys (
-    key_id TEXT PRIMARY KEY,        -- API密钥
-    status TEXT,                    -- 状态(active/disabled)
-    max_accounts INTEGER,           -- 最大账号数限制
-    used_count INTEGER,             -- 使用次数
-    github_username TEXT,           -- GitHub用户名(可选)
-    created_time TEXT,              -- 创建时间
-    -- 注意：没有任何字段存储用户密码
-);
 
-CREATE TABLE usage_logs (
-    id INTEGER PRIMARY KEY,
-    key_id TEXT,                    -- 关联的API Key
-    timestamp TEXT,                 -- 使用时间
-    results TEXT,                   -- 处理结果(JSON格式)
-    -- 注意：results只包含处理状态，不包含密码
-);
-```
+**nat.freecloud.ltd 如何获取 port 值：**
+1. 登录 [https://nat.freecloud.ltd/clientarea](https://nat.freecloud.ltd/clientarea)
+2. 用户名旁的ID即为该账号的 port 值
 
-## 🔍 代码安全审查
+#### ⚠️ 重要注意事项
 
-### 关键安全点分析
+1. **字段含义说明**：
+   - 对于 `freecloud` 类型：`username` 是用户名，`port` 是端口号
+   - 对于 `nat.freecloud` 类型：`username` 是邮箱地址，`port` 是用户ID
 
-#### 1. **API Key验证逻辑**
-```javascript
-// 位置：workerA/cf_worker_gemini_v2-调试版不要修改.js
-async validateApiKey(apiKey, db) {
-  // 只查询API Key的状态和限制信息
-  const key = await db.first('SELECT * FROM keys WHERE key_id = ? AND status = "active"', [apiKey]);
+2. **密码处理**：
+   - `freecloud` 类型使用原始密码
+   - `nat.freecloud` 类型必须使用编码后的密码
 
-  if (!key) {
-    return { valid: false, error: 'API Key 不存在或已被禁用' };
+3. **配置验证**：
+   - 确保 JSON 格式正确，注意逗号和引号
+   - 每个账号都必须包含 `type` 字段
+   - 不同类型的账号可以混合配置
+
+#### 📋 完整配置示例
+
+```json
+[
+  {
+    "type": "freecloud",
+    "username": "myuser1",
+    "password": "mypassword1",
+    "port": "1000"
+  },
+  {
+    "type": "freecloud",
+    "username": "myuser2",
+    "password": "mypassword2",
+    "port": "1222"
+  },
+  {
+    "type": "nat.freecloud",
+    "username": "myemail@gmail.com",
+    "password": "ABDFSW21FA33vsq==",
+    "port": "131"
+  },
+  {
+    "type": "nat.freecloud",
+    "username": "another@email.com",
+    "password": "encoded_password_here",
+    "port": "456"
   }
-
-  // 验证使用限制，不涉及用户密码
-  // ... 其他验证逻辑
-}
+]
 ```
 
-#### 2. **请求转发机制**
-```javascript
-// 核心转发逻辑 - 透明代理
-async function proxyRequest(originalRequest, targetUrl) {
-  // 1. 复制原始请求的所有信息
-  const newRequest = new Request(targetUrl, {
-    method: originalRequest.method,
-    headers: originalRequest.headers,  // 保持用户原始认证信息
-    body: originalRequest.body         // 透明转发请求体
-  });
+### 4. 启用 GitHub Actions
 
-  // 2. 直接转发，不解析或修改用户数据
-  const response = await fetch(newRequest);
+**重要：** 确保您在 service 分支上启用工作流！
 
-  // 3. 返回原始响应，不进行内容修改
-  return response;
-}
+1. 切换到 **service 分支**
+2. 进入仓库的 **Actions** 标签页
+3. 如果是第一次使用，点击 **"I understand my workflows, go ahead and enable them"**
+4. 找到 **"FreeCloud 自动续期"** 工作流
+5. 点击 **"Enable workflow"**
+
+## 🚀 使用方法
+
+### 自动执行
+
+工作流会每天早上8点（北京时间）后随机15分钟内自动执行一次。（建议大家随机修改这个定时时间不一样要 "0 2 * * *"，将2修改为0-16都可以）
+
+### 手动执行
+
+1. 确保您在 **service 分支** 上
+2. 进入 **Actions** 标签页
+3. 选择 **"FreeCloud 自动续期"** 工作流
+4. 点击 **"Run workflow"**
+5. 可选择是否 **"跳过延迟执行"**（默认勾选，立即执行）
+6. **确保选择 service 分支** 并点击 **"Run workflow"**
+
+**说明**：
+- ✅ **跳过延迟执行**（默认）：立即开始续期，无延迟
+- ❌ **不跳过延迟执行**：也会有0-15分钟的随机延迟
+
+## 📊 执行结果
+
+### 成功示例
+
+```
+🚀 开始执行 FreeCloud 自动续期
+📋 读取到 2 个账号
+📊 处理结果: 总计2个账号, 登录成功2个, 续期成功2个, 失败0个
+✅ Telegram 消息已发送
+🎉 所有账号处理完成
 ```
 
-#### 3. **日志记录范围**
-```javascript
-// 只记录元数据，不记录敏感信息
-const logData = {
-  keyId: apiKey,                    // API Key标识
-  timestamp: new Date().toISOString(), // 时间戳
-  results: JSON.stringify([{        // 处理结果
-    username: "处理成功的账号名",     // 只记录账号名，不记录密码
-    type: "服务类型",
-    status: "success"               // 处理状态
-  }])
-};
+### Telegram 通知示例
+
+```
+🌤 多站点续期状态报告
+
+📊 本次处理: 3个账号
+✅ 登录成功: 3个  💰 续期成功: 3个  ❌ 失败: 0个
+
+📋 详细结果:
+✅ 账号1 `user1` (freecloud) 登录成功
+💰 账号1 `user1` (freecloud) 续期成功: 续期成功
+
+✅ 账号2 `user@gmail.com` (nat.freecloud) 登录成功
+💰 账号2 `user@gmail.com` (nat.freecloud) 续期成功: 今天你已经签到过了！
+
+✅ 账号3 `user2` (freecloud) 登录成功
+💰 账号3 `user2` (freecloud) 续期成功: 续期成功
+
+⏰ 执行时间: 2025/6/15 08:00:00
 ```
 
-## 🛡️ 隐私保护措施
+## 🔍 故障排除
 
-### 1. **数据最小化原则**
-- 只收集服务运行必需的最少数据
-- 不存储用户密码、邮箱等敏感信息
-- 定期清理历史日志数据
+### 常见问题
 
-### 2. **透明化设计**
-- 所有代码开源，可公开审查
-- 数据库结构公开，无隐藏字段
-- 处理逻辑清晰，无混淆代码
+1. **环境变量配置错误**
+   - 检查 `FREECLOUD_ACCOUNTS` 是否为有效 JSON 格式
+   - 确认 `FREECLOUD_API_KEY` 是否正确
 
-### 3. **技术限制**
-- 使用Cloudflare Workers无状态架构
-- 无法持久化存储大量用户数据
-- 请求处理时间限制，无法进行复杂的数据挖掘
+2. **Worker 调用失败**
+   - 检查网络连接
+   - 验证 API Key 是否有效（建议重新从 fc.whoer.pp.ua 获取）
+   - 查看 Actions 日志获取详细错误信息
 
-## 🔧 技术实现细节
+3. **账号处理失败**
+   - **freecloud.ltd**: 检查用户名、密码和端口号是否正确
+   - **nat.freecloud.ltd**: 检查邮箱地址、编码密码和UID是否正确
+   - 查看详细错误信息和日志
 
-### 请求处理流程
+4. **站点特定问题**
+   - **freecloud.ltd**: 确认端口号在服务器列表中存在
+   - **nat.freecloud.ltd**: 确认邮箱格式正确，密码已正确编码
+   - 检查站点类型 `type` 字段是否正确填写
 
-1. **接收请求**
-   ```javascript
-   // 用户发送API请求到Worker
 
-## 📚 技术文档
+## 🔒 安全说明
 
-### 详细文档
-- 📖 [技术架构详解](ARCHITECTURE_GUIDE.md)
-- 🔧 [代码分享说明](SHARED_CODE_GUIDE.md)
-- 🚀 [技术分享文档](TECHNICAL_SHARING.md)
-- 🚀 [部署指南](DEPLOYMENT_GUIDE.md)
+- ✅ 所有敏感信息都存储在 GitHub Secrets 中
+- ✅ 代码经过混淆处理，增强安全性
+- ✅ 支持私有仓库部署
+- ⚠️ 请勿在公开场所泄露 API Key 和账号信息
 
-### 学习资源
-- **系统架构设计**：分布式微服务架构实践
-- **Cloudflare Workers**：Serverless应用开发
-- **用户权限系统**：完整的认证授权机制
-- **数据库设计**：D1数据库使用和优化
-- **前端开发**：原生JavaScript应用构建
+## 📞 技术支持
 
-## ⚠️ 重要声明
+如果遇到问题，请：
 
-### 服务终止
-- **停止时间**：2024年6月21日
-- **原因**：避免安全性争议，专注技术分享
-- **影响**：所有API Key失效，服务不再可用
-- **后续**：转为开源技术分享项目
-
-### 技术分享承诺
-- ✅ 公开完整的系统架构设计
-- ✅ 分享用户管理和权限系统
-- ✅ 提供数据库设计和API文档
-- ✅ 开源前端管理界面代码
-- ❌ 不公开核心算法和绕过技术
-
-### 使用限制
-- 📚 **仅供学习研究**：代码仅用于技术学习
-- 🚫 **禁止商业使用**：不得用于商业目的
-- 🔒 **技术保护**：核心算法保持私有
-- ⚖️ **法律合规**：使用需遵守相关法律
-
-## 🤝 技术交流
-
-### 欢迎讨论
-- 💬 系统架构设计思路
-- 🔧 Cloudflare Workers开发经验
-- 📊 数据库设计和优化
-- 🎨 前端技术实现
-
-### 贡献方式
-- 📝 完善技术文档
-- 🐛 报告代码问题
-- 💡 提出改进建议
-- 🔍 代码审查和优化
-
-## 📄 许可证
-
-MIT License - 仅限学习和研究用途
-
-## 🙏 致谢
-
-感谢所有使用过本服务的用户，以及为项目发展提供建议的开发者们。虽然服务已停止，但希望这些技术分享能对大家的学习和工作有所帮助。
-
-特别感谢：
-- 🌟 所有Star过项目的用户
-- 💬 提供反馈和建议的用户
-- 🔧 参与技术讨论的开发者
-- 🏢 Cloudflare提供的优秀平台
+1. 查看 Actions 执行日志
+2. 检查环境变量配置
+3. 确认账号信息正确性
+4. 提供详细的错误信息
 
 ---
 
-> 💡 **技术传承**：虽然服务结束了，但技术的价值在于分享和传承。希望这个项目能为云原生应用开发和分布式系统设计提供一些参考价值。
-   const request = await fetch(workerUrl, userRequest);
-   ```
-
-2. **身份验证**
-   ```javascript
-   // 验证API Key有效性（不涉及用户密码）
-   const validation = await validateApiKey(apiKey);
-   ```
-
-3. **请求转发**
-   ```javascript
-   // 透明转发到目标服务
-   const response = await fetch(targetApi, {
-     method: request.method,
-     headers: request.headers,  // 保持用户原始认证
-     body: request.body
-   });
-   ```
-
-4. **响应返回**
-   ```javascript
-   // 直接返回目标服务的响应
-   return new Response(response.body, {
-     status: response.status,
-     headers: response.headers
-   });
-   ```
-
-### 关键安全特性
-
-#### 1. **无密码接触设计**
-- Worker只处理API Key验证
-- 用户的账号密码直接发送给目标服务
-- 代理层不解析或存储认证信息
-
-#### 2. **请求透明转发**
-- 保持HTTP请求的完整性
-- 不修改用户的认证头信息
-- 不缓存用户的请求内容
-
-#### 3. **最小权限原则**
-- Worker只有转发请求的权限
-- 数据库只存储必要的元数据
-- 无权访问用户的原始密码
-
-## 📊 可验证的安全证据
-
-### 1. **代码审查邀请**
-- 欢迎任何技术专家审查源代码
-- 所有核心逻辑都在开源仓库中
-- 可以通过GitHub Issues提出安全问题
-
-### 2. **数据库查询示例**
-```sql
--- 查看所有存储的数据类型
-SELECT name FROM sqlite_master WHERE type='table';
-
--- 查看keys表结构（无密码字段）
-PRAGMA table_info(keys);
-
--- 查看实际存储的数据示例
-SELECT key_id, status, github_username, created_time FROM keys LIMIT 5;
-```
-
-### 3. **网络流量分析**
-- 可以通过浏览器开发者工具查看网络请求
-- Worker的响应头中无用户敏感信息
-- 请求转发过程完全透明
-
-## ❓ 常见安全疑问解答
-
-### Q: 为什么需要API Key？
-**A:** API Key用于：
-- 防止服务被滥用
-- 统计使用情况
-- 实现访问控制
-- 不用于获取用户密码
-
-### Q: 服务器会记录我的密码吗？
-**A:** 绝对不会，因为：
-- 代码中没有解析密码的逻辑
-- 数据库表结构中无密码字段
-- 请求透明转发，不经过解析
-
-### Q: 如何确保代码没有后门？
-**A:** 通过以下方式验证：
-- 完整的开源代码审查
-- 简洁的架构设计
-- 可验证的数据库结构
-- 社区监督和反馈
-
-### Q: 为什么要信任这个服务？
-**A:** 基于以下技术事实：
-- 开源透明，代码可审查
-- 技术架构简单，无复杂隐藏逻辑
-- 使用成熟的Cloudflare基础设施
-- 遵循最佳安全实践
-
-## 🤝 社区参与
-
-### 安全审查
-- 欢迎提交安全相关的Issue
-- 接受代码审查和改进建议
-- 定期更新安全文档
-
-### 透明度承诺
-- 所有重要更新都会公开说明
-- 安全相关的修改会特别标注
-- 接受社区监督和质疑
-
-## 📞 联系方式
-
-如果您对项目的安全性有任何疑问或建议，欢迎通过以下方式联系：
-
-- GitHub Issues: [项目Issues页面]
-- 技术讨论: 欢迎在代码仓库中提出技术问题
-- 安全报告: 如发现安全问题，请及时报告
-
----
-
-**最后声明：本项目致力于提供安全、透明、可信的服务。我们欢迎任何形式的技术审查和安全质疑，并承诺持续改进项目的安全性和透明度。**
-
+**注意：** 请妥善保管你的 API Key 和账号信息，不要在公开场所泄露。

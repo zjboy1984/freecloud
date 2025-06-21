@@ -7,10 +7,7 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# main分支排除的文件（仅用于技术分享）
-1.md
-fcrenew.js
-.github/
+# service分支 - 保留所有服务文件
 
 # 环境变量文件
 .env
