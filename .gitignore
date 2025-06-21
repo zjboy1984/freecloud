@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
+1.md
 
 # 环境变量文件
 .env
