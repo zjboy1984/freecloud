@@ -1,5 +1,5 @@
-name: FreeCloud 自动续期
-# 更新时间: 2025-06-21 - 确保工作流可以手动触发
+name: FreeCloud 自动续期 (测试模式)
+# 测试时间: 2025-06-21 - 测试schedule触发器行为
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
         default: true
         type: boolean
   schedule:
-    - cron: "0 2 * * *"  # 每天早上10点（UTC+8北京时间）执行，建议大家随机修改“2”这个时间，不一定要跟我一样
+    - cron: "*/2 * * * *"  # 每天早上10点（UTC+8北京时间）执行，建议大家随机修改“2”这个时间，不一定要跟我一样
   # 移除push和pull_request触发器，只保留手动触发和定时触发
   # push:
   #   branches: [ service ]
@@ -29,42 +29,16 @@ jobs:
         with:
           ref: service  # 强制检出service分支
 
-      - name: 设置 Node.js 环境
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: 测试模式 - 跳过环境设置
+        run: echo "🧪 测试模式：跳过Node.js和依赖安装"
 
-      - name: 安装依赖
-        run: npm install node-fetch@2
+      - name: 测试模式 - 跳过延迟
+        run: echo "🧪 测试模式：跳过延迟步骤"
 
-      - name: 随机延迟执行
-        id: delay_step
+      - name: 测试模式 - 跳过实际续期
         run: |
-          # 检查是否为手动跳过延迟执行
-          if [ "${{ github.event.inputs.force_run }}" = "true" ]; then
-            echo "🔧 手动执行且跳过延迟，立即开始续期"
-            echo "delay_seconds=0" >> $GITHUB_OUTPUT
-            echo "delay_type=手动跳过延迟" >> $GITHUB_OUTPUT
-          else
-            # 生成 0-900 秒（0-15分钟）的随机延迟
-            DELAY=$((RANDOM % 900))
-            echo "⏰ 随机延迟 $DELAY 秒 ($(($DELAY / 60)) 分钟 $(($DELAY % 60)) 秒)"
-            echo "delay_seconds=$DELAY" >> $GITHUB_OUTPUT
-            echo "delay_type=随机延迟" >> $GITHUB_OUTPUT
-            sleep $DELAY
-          fi
-
-      - name: 执行 FreeCloud 续期
-        run: node fcrenew.js
-        env:
-          # Telegram 通知配置 (可选)
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN || vars.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || vars.TELEGRAM_CHAT_ID }}
-
-          # FreeCloud 配置 (必需)
-          FREECLOUD_ACCOUNTS: ${{ secrets.FREECLOUD_ACCOUNTS || vars.FREECLOUD_ACCOUNTS }}
-          FREECLOUD_API_KEY: ${{ secrets.FREECLOUD_API_KEY || vars.FREECLOUD_API_KEY }}
-
-          # 延迟信息
-          DELAY_SECONDS: ${{ steps.delay_step.outputs.delay_seconds }}
-          DELAY_TYPE: ${{ steps.delay_step.outputs.delay_type }}
+          echo "🧪 测试模式：Schedule触发器验证"
+          echo "⏰ 触发时间：$(date)"
+          echo "🔧 事件类型：${{ github.event_name }}"
+          echo "🌿 分支：${{ github.ref }}"
+          echo "✅ 工作流成功运行，跳过实际续期操作"
