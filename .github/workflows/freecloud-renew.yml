@@ -1,4 +1,5 @@
 name: FreeCloud 自动续期
+# 更新时间: 2025-06-21 - 确保工作流可以手动触发
 
 on:
   workflow_dispatch:
