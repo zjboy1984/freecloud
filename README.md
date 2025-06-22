@@ -4,10 +4,6 @@
 
 🚀 项目地址：[github.com/mqiancheng/freecloud](https://github.com/mqiancheng/freecloud)
 
-## 📚 想了解技术实现？
-
-👉 **查看技术文档和系统架构：[tech-sharing 分支](../../tree/tech-sharing)**
-
 ---
 
 ## ⚠️ 🔴 重要安全警告 🔴 ⚠️
@@ -17,6 +13,8 @@
 > **🔒 如果您介意隐私安全问题，请勿使用本项目！**
 >
 > **💡 建议：如有技术能力，请自行部署API服务以确保数据安全。**
+
+📚 **想了解技术实现？查看技术文档和系统架构：[tech-sharing 分支](../../tree/tech-sharing)**
 
 ---
 
@@ -36,17 +34,7 @@
 
 加⭐收藏本项目，然后将此仓库 Fork 到你的 GitHub 账号。
 
-### 2. 开始使用
-
-**注意：** 您现在已经在 main 分支上，这是主要的服务分支！
-
-如果您是通过 git 克隆的仓库，请确保在 main 分支：
-
-```bash
-git checkout main
-```
-
-### 3. 配置环境变量
+### 2. 配置环境变量
 
 在 GitHub 仓库中配置以下环境变量：
 
@@ -164,7 +152,7 @@ git checkout main
 ]
 ```
 
-### 4. 启用 GitHub Actions
+### 3. 启用 GitHub Actions
 
 **注意：** 确保您在 main 分支上启用工作流！
 
