@@ -4,6 +4,10 @@
 
 🚀 项目地址：[github.com/mqiancheng/freecloud](https://github.com/mqiancheng/freecloud)
 
+## 📚 想了解技术实现？
+
+👉 **查看技术文档和系统架构：[tech-sharing 分支](../../tree/tech-sharing)**
+
 ---
 
 ## ⚠️ 🔴 重要安全警告 🔴 ⚠️
@@ -32,15 +36,15 @@
 
 加⭐收藏本项目，然后将此仓库 Fork 到你的 GitHub 账号。
 
-### 2. 切换到 service 分支
+### 2. 开始使用
 
-**重要：** 确保您在 service 分支上进行配置和使用！
+**注意：** 您现在已经在 main 分支上，这是主要的服务分支！
+
+如果您是通过 git 克隆的仓库，请确保在 main 分支：
 
 ```bash
-git checkout service
+git checkout main
 ```
-
-或者直接访问：[service 分支](../../tree/service)
 
 ### 3. 配置环境变量
 
@@ -162,9 +166,9 @@ git checkout service
 
 ### 4. 启用 GitHub Actions
 
-**重要：** 确保您在 service 分支上启用工作流！
+**注意：** 确保您在 main 分支上启用工作流！
 
-1. 切换到 **service 分支**
+1. 确保在 **main 分支**
 2. 进入仓库的 **Actions** 标签页
 3. 如果是第一次使用，点击 **"I understand my workflows, go ahead and enable them"**
 4. 找到 **"FreeCloud 自动续期"** 工作流
@@ -178,12 +182,12 @@ git checkout service
 
 ### 手动执行
 
-1. 确保您在 **service 分支** 上
+1. 确保您在 **main 分支** 上
 2. 进入 **Actions** 标签页
 3. 选择 **"FreeCloud 自动续期"** 工作流
 4. 点击 **"Run workflow"**
 5. 可选择是否 **"跳过延迟执行"**（默认勾选，立即执行）
-6. **确保选择 service 分支** 并点击 **"Run workflow"**
+6. 点击 **"Run workflow"** 开始执行
 
 **说明**：
 - ✅ **跳过延迟执行**（默认）：立即开始续期，无延迟
