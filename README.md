@@ -38,7 +38,9 @@
 
 在 GitHub 仓库中配置以下环境变量：
 
-**Settings → Secrets and variables → Actions**
+**方式1：直接跳转** 👉 [点击进入Secrets配置页面](../../settings/secrets/actions)
+
+**方式2：手动导航**：Settings → Secrets and variables → Actions → New repository secret
 
 #### 必需配置
 
@@ -54,6 +56,8 @@
 2. 输入您的 GitHub 用户名
 3. 系统会自动验证您的 Star 状态并生成相应权限的 API Key
 4. 复制生成的 API Key 到 `FREECLOUD_API_KEY` 配置中
+
+💡 **获取API Key后立即配置** 👉 [点击进入Secrets配置页面](../../settings/secrets/actions)
 
 **权限说明：**
 - 🆓 **未Star用户**：1个账号，每日1次
