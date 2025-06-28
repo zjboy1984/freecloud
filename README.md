@@ -174,7 +174,7 @@
 ### 手动执行
 
 1. 确保您在 **main 分支** 上
-2. 进入 **Actions** 标签页
+2. 进入 [**Actions**](../../actions/workflows/freecloud-renew.yml) 标签页
 3. 选择 **"FreeCloud 自动续期"** 工作流
 4. 点击 **"Run workflow"**
 5. 可选择是否 **"跳过延迟执行"**（默认勾选，立即执行）
