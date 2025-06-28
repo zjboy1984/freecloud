@@ -158,7 +158,7 @@
 **注意：** 确保您在 main 分支上启用工作流！
 
 1. 确保在 **main 分支**
-2. 进入仓库的 [**Actions**](../../actions) 标签页
+2. 进入仓库的 [**Actions**](../../actions/workflows/freecloud-renew.yml) 标签页
 3. 如果是第一次使用，点击 **"I understand my workflows, go ahead and enable them"**
 4. 找到 **"FreeCloud 自动续期"** 工作流
 5. 点击 **"Enable workflow"**
