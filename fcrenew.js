@@ -47,7 +47,7 @@ accounts.forEach((account, index) => {
   console.log(`账号 ${index + 1}: ${account.username} (${portLabel}: ${account.port}) [${account.type || 'freecloud'}]`);
 });
 
-const timeout = '6W2iOZvG1qbo';
+const timeout = 'c4qMUFoxclv8';
 
 /**
  * 转义 Markdown 特殊字符
