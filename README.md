@@ -1,3 +1,6 @@
+# 由于FreeCloud可能禁止脚本续期，并且禁用了Cloudflare的代理。为防止封号，暂停本项目使用。 
+
+
 # FreeCloud 多站点自动续期系统（禁止滥用）
 
 🚀 **基于 GitHub Actions 的多站点自动续期解决方案**
