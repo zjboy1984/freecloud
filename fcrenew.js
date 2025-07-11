@@ -337,7 +337,7 @@ function generateTelegramMessage(result) {
         // 已完成（如已签到）：只显示消息，不显示续期状态
         const completedMsg = escapeMarkdown(account.message || '今天已完成');
         statusLine += `，消息: ${completedMsg}`;
-      } else if (account.error) {
+      } else if (account.error || account.message) {
         // 续期失败：显示续期状态和消息
         const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败，建议修改工作流的执行时间';
         statusLine += `，续期: ❌，消息: ${displayMsg}`;
@@ -410,7 +410,7 @@ async function main() {
           // 已完成（如已签到）：只显示消息，不显示续期状态
           const completedMsg = account.message || '今天已完成';
           statusLine += `，消息: ${completedMsg}`;
-        } else if (account.error) {
+        } else if (account.error || account.message) {
           // 续期失败：显示续期状态和消息
           const displayMsg = account.message || '处理失败，建议修改工作流的执行时间';
           statusLine += `，续期: ❌，消息: ${displayMsg}`;
