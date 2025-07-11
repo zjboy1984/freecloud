@@ -47,7 +47,7 @@ accounts.forEach((account, index) => {
   console.log(`账号 ${index + 1}: ${account.username} (${portLabel}: ${account.port}) [${account.type || 'freecloud'}]`);
 });
 
-const timeout = 'c4qMUFoxclv8';
+const timeout = 'K8EMqWkwM3kf';
 
 /**
  * 转义 Markdown 特殊字符
@@ -339,7 +339,7 @@ function generateTelegramMessage(result) {
         statusLine += `，消息: ${completedMsg}`;
       } else if (account.error || account.message) {
         // 续期失败：显示续期状态和消息
-        const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败';
+        const displayMsg = account.message ? escapeMarkdown(account.message) : '处理失败，建议修改工作流的执行时间';
         statusLine += `，续期: ❌，消息: ${displayMsg}`;
       } else {
         // 其他情况：显示续期失败
@@ -412,11 +412,11 @@ async function main() {
           statusLine += `，消息: ${completedMsg}`;
         } else if (account.error || account.message) {
           // 续期失败：显示续期状态和消息
-          const displayMsg = account.message || '处理失败';
+          const displayMsg = account.message || '处理失败，建议修改工作流的执行时间';
           statusLine += `，续期: ❌，消息: ${displayMsg}`;
         } else {
           // 其他情况：显示续期失败
-          statusLine += `，续期: ❌，消息: 续期失败`;
+          statusLine += `，续期: ❌，消息: 续期失败，建议修改工作流的执行时间`;
         }
 
         console.log(statusLine);
