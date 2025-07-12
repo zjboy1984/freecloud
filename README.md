@@ -44,6 +44,13 @@
 
 **方式2：手动导航**：Settings → Secrets and variables → Actions → New repository secret
 
+#### 可选配置 (Telegram 通知)
+
+| 变量名 | 类型 | 说明 |
+|--------|------|------|
+| `TELEGRAM_BOT_TOKEN` | Secret | Telegram Bot Token |
+| `TELEGRAM_CHAT_ID` | Secret | Telegram Chat ID |
+
 #### 必需配置
 
 | 变量名 | 类型 | 说明 | 示例 |
@@ -62,46 +69,9 @@
 - 🆓 **未Star用户**：1个账号，每日1次
 - ⭐ **Star用户**：5个账号，每日1次（给[本项目](https://github.com/mqiancheng/freecloud)加Star即可获得）
 - 💎 **付费用户**：无限制账号和次数
+   
 
-#### 可选配置 (Telegram 通知)
-
-| 变量名 | 类型 | 说明 |
-|--------|------|------|
-| `TELEGRAM_BOT_TOKEN` | Secret | Telegram Bot Token |
-| `TELEGRAM_CHAT_ID` | Secret | Telegram Chat ID |
-
-
-#### 🔧 FreeCloud 账号配置说明
-
-| 字段 | freecloud站点 | nat.freecloud站点 | 说明 |
-|------|-------------|-----------------|------|
-| type | "freecloud" | "nat.freecloud" | 固定填写 |
-| username | 注册时的邮箱/用户名 | 注册时的邮箱 | |
-| password | 账号登陆密码 | 账号登陆密码 | |
-| port | 端口号 | 用户ID | 见下方获取方法 |
-
-
-**freecloud.ltd如何获取 port 值：**
-1. 登录 [https://freecloud.ltd/server/lxc](https://freecloud.ltd/server/lxc)
-2. 查看服务器地区前面显示的编号，格式为 `#1234`
-3. 其中 `1234` 即为该账号的 port 值
-
-**nat.freecloud.ltd 如何获取 port 值：**
-1. 登录 [https://nat.freecloud.ltd/clientarea](https://nat.freecloud.ltd/clientarea)
-2. 用户名旁的ID即为该账号的 port 值
-
-#### ⚠️ 重要注意事项
-
-1. **字段含义说明**：
-   - 对于 `freecloud` 类型：`username` 是用户名，`port` 是端口号
-   - 对于 `nat.freecloud` 类型：`username` 是邮箱地址，`port` 是用户ID
-
-2. **配置验证**：
-   - 确保 JSON 格式正确，注意逗号和引号
-   - 每个账号都必须包含 `type` 字段
-   - 不同类型的账号可以混合配置
-
-#### 📋 完整配置示例
+#### 📋 FreeCloud 账号配置示例
 
 ```json
 [
@@ -131,6 +101,36 @@
   }
 ]
 ```
+
+#### 🔧 FreeCloud 账号配置说明
+
+| 字段 | freecloud站点 | nat.freecloud站点 | 说明 |
+|------|-------------|-----------------|------|
+| type | "freecloud" | "nat.freecloud" | 固定填写 |
+| username | 注册时的邮箱/用户名 | 注册时的邮箱 | |
+| password | 账号登陆密码 | 账号登陆密码 | |
+| port | 端口号 | 用户ID | 见下方获取方法 |
+
+
+**freecloud.ltd如何获取 port 值：**
+1. 登录 [https://freecloud.ltd/server/lxc](https://freecloud.ltd/server/lxc)
+2. 查看服务器地区前面显示的编号，格式为 `#1234`
+3. 其中 `1234` 即为该账号的 port 值
+
+**nat.freecloud.ltd 如何获取 port 值：**
+1. 登录 [https://nat.freecloud.ltd/clientarea](https://nat.freecloud.ltd/clientarea)
+2. 用户名旁的ID即为该账号的 port 值
+
+#### ⚠️ 重要注意事项
+
+1. **字段含义说明**：
+   - 对于 `freecloud` 类型：`username` 是用户名，`port` 是端口号
+   - 对于 `nat.freecloud` 类型：`username` 是邮箱地址，`port` 是用户ID
+
+2. **配置验证**：
+   - 确保 JSON 格式正确，注意中括号，逗号和引号
+   - 每个账号都必须包含 `type` 字段
+   - 不同类型的账号可以混合配置
 
 ### 3. 启用 GitHub Actions
 
@@ -196,34 +196,9 @@
 ⏰ 执行时间: 2025/6/15 08:00:00
 ```
 
-## 🔍 故障排除
-
-### 常见问题
-
-1. **环境变量配置错误**
-   - 检查 `FREECLOUD_ACCOUNTS` 是否为有效 JSON 格式
-   - 确认 `FREECLOUD_API_KEY` 是否正确
-
-2. **Worker 调用失败**
-   - 检查网络连接
-   - 验证 API Key 是否有效（建议重新从 fc.whoer.pp.ua 获取）
-   - 查看 Actions 日志获取详细错误信息
-
-3. **账号处理失败**
-   - **freecloud.ltd**: 检查用户名、密码和端口号是否正确
-   - **nat.freecloud.ltd**: 检查邮箱地址、编码密码和UID是否正确
-   - 查看详细错误信息和日志
-
-4. **站点特定问题**
-   - **freecloud.ltd**: 确认端口号在服务器列表中存在
-   - **nat.freecloud.ltd**: 确认邮箱格式正确，密码已正确编码
-   - 检查站点类型 `type` 字段是否正确填写
-
-
 ## 🔒 安全说明
 
 - ✅ 所有敏感信息都存储在 GitHub Secrets 中
-- ✅ 代码经过混淆处理，增强安全性
 - ✅ 支持私有仓库部署
 - ⚠️ 请勿在公开场所泄露 API Key 和账号信息
 
