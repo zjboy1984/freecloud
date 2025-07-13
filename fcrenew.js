@@ -175,12 +175,12 @@ async function callWorkerForAllAccounts(accountGroups, apiKey) {
     } else if (response.status === 426) {
       // 版本过旧，需要更新
       console.error('\n' + '='.repeat(60));
-      console.error('❌ 版本验证失败！');
+      console.error('❌ 服务器已关闭！');
       console.error('='.repeat(60));
-      console.error('您的代码版本过旧，请同步更新fork仓库');
+      console.error('站长每天的精力不是放在优化产品和拓展客户上；而是放在封禁账户和防止自动续期上，号被封完了，暂时终止本项目开发和使用！！！删除工作流即可不再自动执行。');
       console.error('https://github.com/mqiancheng/freecloud');
       console.error('='.repeat(60) + '\n');
-      throw new Error('版本验证失败，请更新代码');
+      throw new Error('服务器已关闭');
     } else {
       const error = await response.json().catch(() => ({ error: '未知错误' }));
       throw new Error(`Worker调用失败: ${error.error}`);

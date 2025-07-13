@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 package-lock.json
 yarn.lock
+READMEBAK.md
 
 # service分支 - 保留所有服务文件
 
