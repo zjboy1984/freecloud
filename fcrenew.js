@@ -270,6 +270,8 @@ function groupErrorsByType(results) {
         errorKey = 'API Key错误';
       } else if (errorKey.includes('版本验证失败')) {
         errorKey = '版本验证失败';
+      } else if (errorKey.includes('服务器已关闭')) {
+        errorKey = '❌ 服务器已关闭！站长暂时终止项目开发和使用';
       } else if (errorKey.includes('Worker调用失败')) {
         errorKey = 'Worker调用失败';
       }
