@@ -1,4 +1,4 @@
-# FreeCloud 多站点自动续期系统（禁止滥用）
+# FreeCloud 多站点自动续期系统（已失效）
 
 🚀 **基于 GitHub Actions 的多站点自动续期解决方案**
 
